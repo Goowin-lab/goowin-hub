@@ -1,0 +1,7 @@
+{
+  "name": "@goowin-hub/api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "NestJS API workspace placeholder for Goowin Hub.",
+  "license": "UNLICENSED"
+}

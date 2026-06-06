@@ -1,0 +1,19 @@
+{
+  "name": "goowin-hub",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Initial monorepo structure for the Goowin Hub SaaS platform.",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20.11.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "build": "pnpm -r --if-present build",
+    "lint": "pnpm -r --if-present lint",
+    "test": "pnpm -r --if-present test",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "format": "pnpm -r --if-present format"
+  }
+}

@@ -15,7 +15,140 @@ La persistencia se planifica con PostgreSQL y Prisma ORM, ubicando Prisma dentro
 
 Goowin Hub es una plataforma para centralizar la gestion de servicios digitales de clientes. Google Ads es solo uno de los servicios disponibles dentro de la plataforma; Goowin Hub no se define como una aplicacion exclusiva de Google Ads.
 
+Funcionalmente, la plataforma se organiza alrededor de dos portales: un portal administrativo para usuarios internos de Goowin y un portal cliente para consulta y autoservicio de clientes. Estos portales representan limites funcionales y de acceso, no carpetas, modulos ni endpoints implementados.
+
 ## Arquitectura de negocio
+
+### Roles oficiales del sistema
+
+Goowin Hub reconoce los siguientes roles oficiales para operar y consultar la plataforma.
+
+#### Administrador Goowin
+
+El Administrador Goowin corresponde a Christian, CEO y Administrador General. Tiene acceso total al sistema.
+
+Puede:
+
+- Gestionar clientes.
+- Gestionar usuarios.
+- Gestionar servicios.
+- Gestionar pagos.
+- Gestionar renovaciones.
+- Gestionar campanas Google Ads.
+- Gestionar configuracion del sistema.
+- Ver metricas globales.
+- Ver reportes financieros.
+- Administrar permisos.
+
+#### Editor Goowin
+
+El Editor Goowin representa usuarios internos del equipo que operan la plataforma. No son desarrolladores, no tienen acceso tecnico y deben trabajar mediante formularios y paneles administrativos.
+
+Puede:
+
+- Crear clientes.
+- Editar clientes.
+- Registrar dominios.
+- Registrar hosting.
+- Registrar servicios SEO.
+- Registrar licencias.
+- Registrar recargas Google Ads.
+- Consultar renovaciones.
+- Consultar reportes de clientes.
+
+No puede:
+
+- Gestionar usuarios administradores.
+- Configurar el sistema.
+- Ver configuraciones sensibles.
+- Modificar permisos.
+- Acceder a metricas financieras globales.
+
+#### Cliente
+
+El Cliente consulta la informacion de los servicios contratados y usa las capacidades de autoservicio disponibles.
+
+Puede:
+
+- Consultar servicios contratados.
+- Consultar renovaciones.
+- Consultar Google Ads.
+- Consultar hosting.
+- Consultar dominios.
+- Consultar facturas.
+- Consultar pagos.
+- Abrir solicitudes de soporte.
+
+#### Agencia
+
+El rol Agencia se mantiene como fase futura. No forma parte del alcance funcional inicial de la arquitectura.
+
+### Arquitectura de portales
+
+#### Portal Administrativo
+
+URL: `adminhub.goowin.co`
+
+Uso:
+
+- Administrador Goowin.
+- Editores Goowin.
+
+Funciones:
+
+- Gestion de clientes.
+- Gestion de servicios.
+- Gestion de renovaciones.
+- Gestion de pagos.
+- Gestion de campanas Google Ads.
+- Gestion de reportes.
+- Gestion operativa de la plataforma.
+
+#### Portal Cliente
+
+URL: `hub.goowin.co`
+
+Uso:
+
+- Clientes.
+
+Funciones:
+
+- Ver servicios.
+- Ver renovaciones.
+- Ver facturas.
+- Ver pagos.
+- Ver Google Ads.
+- Ver hosting.
+- Ver dominios.
+- Ver soporte.
+
+### Arquitectura general conceptual
+
+El flujo funcional de acceso queda organizado asi:
+
+```txt
+Administrador Goowin
+        |
+Editor Goowin
+        |
+        v
+adminhub.goowin.co
+        |
+        v
+NestJS API
+        |
+        v
+PostgreSQL
+        ^
+        |
+hub.goowin.co
+        |
+        v
+Cliente
+```
+
+Este flujo es conceptual y describe responsabilidades de acceso. No define endpoints, tablas, entidades, despliegues ni modulos tecnicos.
 
 ### Modelo de Servicios
 
@@ -125,12 +258,14 @@ No existen:
 - Endpoints HTTP.
 - Pantallas mobile.
 - Componentes UI.
+- Portales implementados.
+- Roles implementados en codigo.
 - Entidades de dominio.
 - Modelo Prisma.
 - Migraciones.
 - Workflows CI ejecutables.
 
-Las decisiones funcionales documentadas en esta arquitectura no generan por si mismas modulos, endpoints, tablas SQL, entidades ni pantallas. Su objetivo es orientar implementaciones futuras cuando las reglas de negocio se conviertan en codigo.
+Las decisiones funcionales documentadas en esta arquitectura no generan por si mismas modulos, endpoints, tablas SQL, entidades, pantallas ni diagramas tecnicos de implementacion. Su objetivo es orientar implementaciones futuras cuando las reglas de negocio se conviertan en codigo.
 
 ## Principio rector
 

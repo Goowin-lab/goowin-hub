@@ -68,7 +68,74 @@ Puede:
 
 El rol Agencia queda reservado para una fase futura. No forma parte de las reglas operativas iniciales de Goowin Hub.
 
-## 2. Tipos de Servicios
+## 2. Estados Comerciales del Cliente
+
+El Estado Comercial del Cliente describe la situacion comercial general del cliente frente a Goowin. Este estado ayuda a priorizar seguimiento, pagos, renovaciones y atencion operativa.
+
+Estados oficiales:
+
+- Al dia.
+- Pago pendiente.
+- En seguimiento.
+- Suspendido.
+
+### Al dia
+
+Un cliente esta Al dia cuando no tiene obligaciones comerciales pendientes que requieran accion inmediata.
+
+Reglas:
+
+- Puede tener servicios activos, renovaciones futuras o saldos disponibles.
+- Puede recibir recordatorios preventivos sin dejar de estar Al dia.
+- Su estado comercial no impide la operacion normal de sus servicios.
+
+### Pago pendiente
+
+Un cliente esta en Pago pendiente cuando existe una factura, renovacion, recarga acordada, ajuste o compromiso comercial pendiente de pago.
+
+Reglas:
+
+- Debe ser visible para seguimiento administrativo.
+- No implica necesariamente que todos sus servicios esten suspendidos.
+- Puede coexistir con servicios tecnicamente activos.
+
+### En seguimiento
+
+Un cliente esta En seguimiento cuando Goowin requiere monitoreo comercial u operativo especial.
+
+Reglas:
+
+- Puede deberse a negociaciones, acuerdos de pago, riesgo de vencimiento, cambios de servicio, migraciones o decisiones pendientes del cliente.
+- Debe ayudar al equipo a priorizar gestion sin asumir automaticamente suspension.
+- Puede coexistir con servicios activos, vencidos, suspendidos o en proceso de renovacion.
+
+### Suspendido
+
+Un cliente esta Suspendido cuando Goowin limita o detiene la operacion comercial por una decision administrativa, incumplimiento de pago o situacion excepcional.
+
+Reglas:
+
+- Debe ser visible para el Administrador Goowin y para los Editores Goowin segun su alcance operativo.
+- No elimina el historial del cliente.
+- No elimina facturas, pagos, servicios, renovaciones, recargas ni consumos historicos.
+- No debe confundirse con la suspension tecnica de un servicio especifico.
+
+### Estado Comercial vs Estado Tecnico del Servicio
+
+El Estado Comercial aplica al cliente como relacion comercial con Goowin.
+
+El Estado Tecnico del Servicio aplica a cada servicio contratado y describe su situacion operativa o de ciclo de vida.
+
+Diferencias oficiales:
+
+- Un cliente tiene un estado comercial general.
+- Cada servicio conserva su propio estado tecnico independiente.
+- Un cliente puede estar en Pago pendiente y aun tener servicios tecnicamente Activos.
+- Un cliente puede estar Al dia y tener un servicio Proximo a vencer por calendario.
+- Un servicio puede estar Suspendido sin que todos los demas servicios del cliente esten suspendidos.
+- Cambiar el estado comercial del cliente no debe borrar ni reemplazar el estado tecnico historico de sus servicios.
+
+## 3. Tipos de Servicios
 
 Goowin Hub reconoce dos categorias oficiales de servicios: servicios recurrentes y servicios prepago.
 
@@ -100,7 +167,7 @@ Google Ads funciona como Servicio + Billetera de Inversion Publicitaria.
 
 Google Ads no tiene renovacion fija. Puede recibir recargas en cualquier momento y su consumo depende de la inversion publicitaria ejecutada en campanas.
 
-## 3. Reglas Google Ads
+## 4. Reglas Google Ads
 
 Google Ads debe gestionarse como una billetera de inversion publicitaria asociada a un cliente.
 
@@ -112,6 +179,20 @@ Debe permitir consultar:
 - Consumo promedio.
 - Duracion estimada del saldo.
 - Estados del servicio.
+
+### Multiples cuentas Google Ads
+
+Un cliente puede tener multiples cuentas Google Ads.
+
+Reglas:
+
+- No existe limite de cuentas Google Ads por cliente.
+- Cada cuenta Google Ads debe mantener su saldo de forma independiente.
+- Cada cuenta Google Ads debe mantener su consumo de forma independiente.
+- Cada cuenta Google Ads debe mantener sus recargas de forma independiente.
+- Cada cuenta Google Ads debe mantener su historial de forma independiente.
+- Cada cuenta Google Ads debe mantener sus reportes de forma independiente.
+- Las recargas, consumos y reportes de una cuenta no deben mezclarse con los de otra cuenta del mismo cliente.
 
 ### Recargas
 
@@ -144,7 +225,7 @@ Los estados oficiales de Google Ads son:
 - Sin Saldo: el saldo disponible no permite continuar la inversion publicitaria.
 - Pausado: el servicio esta detenido por decision operativa, comercial o solicitud del cliente.
 
-## 4. Reglas Dominio
+## 5. Reglas Dominio
 
 El Dominio es un servicio recurrente anual.
 
@@ -168,7 +249,7 @@ Reglas:
 - Un dominio puede ser Cancelado por decision del cliente, por reemplazo o por una decision operativa aprobada.
 - La cancelacion de un dominio no cancela automaticamente otros servicios del cliente.
 
-## 5. Reglas Hosting
+## 6. Reglas Hosting
 
 El Hosting es un servicio recurrente anual.
 
@@ -199,7 +280,7 @@ Reglas:
 - Si el cliente no renueva, el hosting puede pasar a Vencido o Suspendido segun la situacion operativa.
 - La suspension del hosting afecta la disponibilidad del servicio de hosting, pero no implica por si misma la cancelacion del dominio.
 
-## 6. Reglas SEO
+## 7. Reglas SEO
 
 SEO es un servicio recurrente mensual.
 
@@ -216,7 +297,20 @@ Reglas:
 - Si existe una obligacion de pago sin cumplir, el servicio puede pasar a Pendiente de pago.
 - Si la situacion de pago u operacion no se corrige, el servicio puede pasar a Suspendido.
 
-## 7. Reglas Licencias
+### Multiples servicios SEO por cliente
+
+Un cliente puede contratar multiples servicios SEO.
+
+Reglas:
+
+- No existe limite de servicios SEO por cliente.
+- Cada servicio SEO debe mantener su estado de forma independiente.
+- Cada servicio SEO debe mantener su frecuencia de forma independiente.
+- Cada servicio SEO debe mantener su historial de forma independiente.
+- Cada servicio SEO debe mantener sus renovaciones de forma independiente.
+- La suspension, renovacion o finalizacion de un servicio SEO no afecta automaticamente los demas servicios SEO del mismo cliente.
+
+## 8. Reglas Licencias
 
 Las Licencias son servicios recurrentes cuya frecuencia depende del producto.
 
@@ -238,7 +332,7 @@ Reglas:
 - Una licencia mensual se gestiona con renovacion mensual.
 - El estado debe reflejar si la licencia esta vigente, cercana a vencerse o vencida.
 
-## 8. Reglas de Renovaciones
+## 9. Reglas de Renovaciones
 
 Las renovaciones aplican a servicios recurrentes.
 
@@ -281,7 +375,7 @@ Reglas:
 - Los recordatorios deben poder orientar al cliente sobre que servicio requiere pago o decision.
 - Un servicio vencido debe seguir visible como pendiente de atencion hasta que sea renovado, cancelado, suspendido o cerrado segun aplique.
 
-## 9. Ajustes de Renovacion y Prorrateos
+## 10. Ajustes de Renovacion y Prorrateos
 
 Regla oficial: Hosting y Dominio no son dependencias directas.
 
@@ -306,7 +400,53 @@ Reglas:
 - Un ajuste de prorrateo no debe asumirse automaticamente; debe responder a una decision operativa o comercial.
 - La alineacion de fechas no cambia la naturaleza independiente de Dominio y Hosting.
 
-## 10. Reglas de Facturacion
+## 11. Migraciones y Cambios de Proveedor
+
+Las migraciones y cambios de proveedor forman parte de la operacion real de Goowin y deben conservar la continuidad historica del cliente.
+
+Casos cubiertos:
+
+- Hosting.
+- Dominio.
+- Servicios relacionados.
+
+### Hosting
+
+Un servicio de hosting puede cambiar de proveedor, infraestructura operativa o condiciones comerciales sin que esto elimine su historial.
+
+Reglas:
+
+- El historial del hosting nunca debe eliminarse.
+- El cambio de proveedor debe conservar trazabilidad.
+- El cliente mantiene continuidad historica del servicio.
+- La migracion no implica perdida de informacion historica.
+- El cambio de proveedor no debe asumirse automaticamente como cancelacion del hosting.
+
+### Dominio
+
+Un dominio puede requerir cambio de proveedor, registrador, administracion o responsable operativo.
+
+Reglas:
+
+- El historial del dominio nunca debe eliminarse.
+- Los cambios de proveedor deben conservar trazabilidad.
+- El cliente mantiene continuidad historica sobre el dominio.
+- La migracion no implica perdida de informacion historica.
+- Si un dominio es reemplazado por otro, ambos deben conservar su propia historia.
+
+### Servicios relacionados
+
+Los servicios relacionados son servicios o gestiones asociadas a la continuidad operativa del cliente.
+
+Reglas:
+
+- El historial nunca debe eliminarse.
+- Los cambios de proveedor deben conservar trazabilidad.
+- El cliente mantiene continuidad historica.
+- La migracion no implica perdida de informacion historica.
+- Las decisiones de migracion deben poder entenderse posteriormente desde el historial operativo del cliente.
+
+## 12. Reglas de Facturacion
 
 La facturacion debe reflejar las obligaciones comerciales entre Goowin y sus clientes.
 
@@ -344,7 +484,7 @@ Reglas:
 - Deben poder consultarse como soporte operativo y financiero.
 - Un comprobante no reemplaza la confirmacion operativa del pago si Goowin requiere validacion interna.
 
-## 11. Reglas de Notificaciones
+## 13. Reglas de Notificaciones
 
 Las notificaciones deben comunicar eventos relevantes para clientes y equipo interno.
 
@@ -366,7 +506,7 @@ Reglas:
 - El Editor Goowin debe ver eventos necesarios para operar clientes y servicios.
 - El Cliente debe ver eventos relacionados con sus propios servicios, pagos, renovaciones y saldos.
 
-## 12. Dashboard Cliente
+## 14. Dashboard Cliente
 
 El Dashboard Cliente debe priorizar claridad operativa para el cliente.
 
@@ -385,7 +525,7 @@ Reglas:
 - Hosting debe mostrar el SSL como incluido.
 - La informacion financiera visible debe corresponder a facturas y pagos del propio cliente.
 
-## 13. Dashboard Administrativo
+## 15. Dashboard Administrativo
 
 El Dashboard Administrativo debe priorizar la operacion diaria de Goowin.
 
@@ -405,7 +545,7 @@ Reglas:
 - Google Ads con saldo bajo o sin saldo debe requerir atencion visible.
 - Los pagos pendientes deben permitir seguimiento comercial y operativo.
 
-## 14. Casos Especiales
+## 16. Casos Especiales
 
 ### Cliente con multiples dominios
 
@@ -426,6 +566,26 @@ Reglas:
 - Cada hosting conserva su propio estado y vencimiento.
 - Cada hosting incluye su propio tratamiento de SSL como parte del servicio.
 - La suspension o vencimiento de un hosting no afecta automaticamente otros hostings del mismo cliente.
+
+### Cliente con multiples servicios SEO
+
+Un cliente puede contratar multiples servicios SEO sin limite operativo definido.
+
+Reglas:
+
+- Cada servicio SEO conserva su estado, frecuencia, historial y renovaciones.
+- Los servicios SEO del mismo cliente deben poder evaluarse individualmente.
+- Un servicio SEO suspendido o pendiente de pago no afecta automaticamente otro servicio SEO del mismo cliente.
+
+### Cliente con multiples cuentas Google Ads
+
+Un cliente puede tener multiples cuentas Google Ads sin limite operativo definido.
+
+Reglas:
+
+- Cada cuenta conserva su saldo, consumo, recargas, historial y reportes.
+- Una cuenta puede estar Sin Saldo mientras otra cuenta del mismo cliente permanece Activa.
+- Las recargas de una cuenta no deben asumirse como saldo disponible para otra cuenta.
 
 ### Dominio cancelado y reemplazado
 
@@ -460,7 +620,7 @@ Reglas:
 - La duracion estimada del saldo debe considerar el consumo promedio.
 - Varias recargas en un mes no convierten Google Ads en una suscripcion mensual.
 
-## 15. Validacion Final
+## 17. Validacion Final
 
 Estas reglas son coherentes con la arquitectura oficial de Goowin Hub:
 
@@ -471,5 +631,9 @@ Estas reglas son coherentes con la arquitectura oficial de Goowin Hub:
 - SEO es un servicio recurrente mensual.
 - Licencias pueden ser anuales o mensuales segun el producto.
 - SSL esta integrado dentro de Hosting.
+- Un cliente puede tener multiples servicios SEO independientes.
+- Un cliente puede tener multiples cuentas Google Ads independientes.
+- El Estado Comercial del Cliente es distinto del Estado Tecnico del Servicio.
+- Las migraciones y cambios de proveedor conservan trazabilidad e historial.
 - Los roles oficiales son Administrador Goowin, Editor Goowin, Cliente y Agencia como fase futura.
 - Las reglas aqui descritas no crean codigo, tablas SQL, entidades, endpoints, diagramas tecnicos ni diseno de base de datos.

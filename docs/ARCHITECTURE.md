@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Definir una base profesional y escalable para Goowin Hub sin implementar funcionalidades de negocio.
+Definir una base profesional y escalable para Goowin Hub sin implementar codigo funcional de negocio.
 
 ## Vision general
 
@@ -12,6 +12,80 @@ Goowin Hub se organiza como un monorepo con dos aplicaciones principales:
 - `apps/mobile`: cliente mobile basado en React Native.
 
 La persistencia se planifica con PostgreSQL y Prisma ORM, ubicando Prisma dentro del backend porque la API sera la responsable de coordinar acceso a datos y reglas transaccionales.
+
+Goowin Hub es una plataforma para centralizar la gestion de servicios digitales de clientes. Google Ads es solo uno de los servicios disponibles dentro de la plataforma; Goowin Hub no se define como una aplicacion exclusiva de Google Ads.
+
+## Arquitectura de negocio
+
+### Modelo de Servicios
+
+Goowin Hub reconoce dos tipos oficiales de servicios: servicios recurrentes y servicios prepago.
+
+Los servicios recurrentes representan obligaciones periodicas con vencimiento y renovacion. Deben permitir seguimiento de fecha de vencimiento, proxima renovacion, estado y recordatorios automaticos.
+
+Los servicios prepago representan bolsas de valor disponibles para consumo. No tienen una fecha fija de renovacion, pueden recibir recargas en cualquier momento y deben permitir seguimiento de saldo, movimientos, recargas y consumo.
+
+Esta clasificacion evita tratar todos los servicios como suscripciones y permite que cada experiencia del cliente muestre la informacion correcta segun la naturaleza del servicio.
+
+### Servicios recurrentes
+
+Los servicios recurrentes oficiales son:
+
+- Dominio, con periodicidad anual.
+- Hosting, con periodicidad anual.
+- SEO, con periodicidad mensual.
+- Licencias, con periodicidad anual o mensual segun el producto.
+
+Estos servicios tienen:
+
+- Fecha de vencimiento.
+- Proxima renovacion.
+- Estado.
+- Recordatorios automaticos.
+
+### Servicios prepago
+
+El servicio prepago oficial actual es Google Ads.
+
+Google Ads no funciona como una suscripcion ni como una renovacion mensual obligatoria. En Goowin Hub debe modelarse como un servicio con billetera publicitaria, donde el cliente mantiene saldo disponible para inversion en campanas.
+
+Google Ads debe contemplar:
+
+- Saldo actual.
+- Historial de recargas.
+- Historial de consumo.
+- Consumo promedio.
+- Duracion estimada del saldo.
+- Reportes de campanas.
+
+El saldo de Google Ads puede recibir recargas en cualquier momento y su consumo depende de la ejecucion real de las campanas publicitarias.
+
+### Hosting y SSL
+
+SSL no tendra un modulo independiente dentro de Goowin Hub. El SSL pertenece al servicio de Hosting.
+
+La experiencia visible para el cliente debe presentar Hosting como un unico servicio con:
+
+- Estado.
+- Renovacion.
+- SSL incluido.
+
+### Dashboard principal
+
+El dashboard principal debe reflejar la diferencia entre servicios recurrentes y prepago.
+
+Para Google Ads debe mostrar:
+
+- Saldo disponible.
+- Consumo del dia.
+- Duracion estimada.
+
+Para renovaciones debe mostrar:
+
+- Dominio.
+- Hosting.
+- SEO.
+- Licencias.
 
 ## Decisiones iniciales
 
@@ -55,6 +129,8 @@ No existen:
 - Modelo Prisma.
 - Migraciones.
 - Workflows CI ejecutables.
+
+Las decisiones funcionales documentadas en esta arquitectura no generan por si mismas modulos, endpoints, tablas SQL, entidades ni pantallas. Su objetivo es orientar implementaciones futuras cuando las reglas de negocio se conviertan en codigo.
 
 ## Principio rector
 

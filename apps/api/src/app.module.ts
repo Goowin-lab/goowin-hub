@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import { AuthModule } from './auth/auth.module';
+import { ClientsModule } from './clients/clients.module';
 import { CommonModule } from './common/common.module';
 import { configuration } from './config/configuration';
 import { validateEnvironment } from './config/env.validation';
@@ -24,6 +25,7 @@ import { UsersModule } from './users/users.module';
     PrismaModule,
     HealthModule,
     AuthModule,
+    ClientsModule,
     UsersModule,
   ],
 })

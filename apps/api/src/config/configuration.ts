@@ -1,4 +1,7 @@
-const toBoolean = (value: string | undefined, defaultValue: boolean): boolean => {
+const toBoolean = (
+  value: string | undefined,
+  defaultValue: boolean,
+): boolean => {
   if (value === undefined) {
     return defaultValue;
   }
@@ -23,6 +26,10 @@ export const configuration = () => ({
   },
   database: {
     url: process.env.DATABASE_URL,
+  },
+  auth: {
+    jwtSecret: process.env.JWT_SECRET,
+    jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '1h',
   },
   swagger: {
     enabled: toBoolean(process.env.SWAGGER_ENABLED, true),

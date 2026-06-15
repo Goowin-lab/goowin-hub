@@ -37,7 +37,7 @@ Agrupa servicios contratados, facturas, pagos, notificaciones, historial, estado
 
 Representa el concepto general de servicio contratado o administrado para un cliente.
 
-Es la base conceptual para servicios recurrentes y servicios prepago. Permite tratar de forma comun renovaciones, historial, facturacion, notificaciones y estado tecnico del servicio.
+Es la base conceptual para servicios recurrentes, servicios prepago y servicios unicos. Permite tratar de forma comun renovaciones cuando apliquen, historial, facturacion, notificaciones y estado tecnico u operativo del servicio.
 
 ### Dominio
 
@@ -62,6 +62,26 @@ Un cliente puede contratar multiples servicios SEO. Cada servicio SEO conserva s
 Representa un servicio recurrente asociado a un producto licenciado.
 
 Puede tener frecuencia anual o mensual segun el producto. Cada licencia conserva su propio ciclo de renovacion e historial.
+
+### Monitoreo Google Ads
+
+Representa un servicio recurrente mensual de seguimiento operativo sobre la gestion de Google Ads.
+
+Es independiente de la inversion publicitaria, de las recargas y del saldo de las Cuentas Google Ads. Puede coexistir con multiples cuentas Google Ads del mismo cliente.
+
+### Correo Corporativo
+
+Representa un servicio recurrente anual de correo corporativo.
+
+Conserva conceptualmente plan de cuentas, cuentas activas, cuentas disponibles, ciclo de renovacion anual e historial de cambios de plan.
+
+### Servicio Unico
+
+Representa un servicio puntual sin renovacion periodica ni fecha de vencimiento.
+
+Ejemplos conceptuales: Consultoria Google Ads, Optimizacion Google Maps, Cambio de Numero, Backup / Migracion y Optimizacion de Sitio Web.
+
+Cada contratacion de un servicio unico conserva su propio historial y puede aparecer en facturas.
 
 ### Cuenta Google Ads
 
@@ -104,6 +124,12 @@ Un pago puede cubrir una o varias facturas, total o parcialmente segun la operac
 Representa el documento consultable asociado a una factura o pago.
 
 En el caso de facturas oficiales, el PDF corresponde al documento emitido por Siigo y almacenado para consulta dentro de Goowin Hub.
+
+### Historial de Precio
+
+Representa la trazabilidad del precio aplicado en una operacion comercial concreta.
+
+No representa una lista permanente de precios fijos por servicio. El precio aplicado debe conservarse en facturas, renovaciones, servicios unicos, recargas, ajustes o cualquier operacion facturable para permitir saber que valor fue cobrado en ese momento.
 
 ### Renovacion
 
@@ -155,6 +181,9 @@ Las relaciones conceptuales principales son:
 - Cliente agrupa Hostings.
 - Cliente agrupa Servicios SEO.
 - Cliente agrupa Licencias.
+- Cliente agrupa Monitoreos Google Ads.
+- Cliente agrupa Servicios de Correo Corporativo.
+- Cliente agrupa Servicios Unicos.
 - Cliente agrupa Cuentas Google Ads.
 - Cliente agrupa Facturas.
 - Cliente agrupa Pagos.
@@ -165,18 +194,24 @@ Las relaciones conceptuales principales son:
 - Hosting representa un tipo especializado de Servicio.
 - Servicio SEO representa un tipo especializado de Servicio.
 - Licencia representa un tipo especializado de Servicio.
+- Monitoreo Google Ads representa un tipo especializado de Servicio recurrente.
+- Correo Corporativo representa un tipo especializado de Servicio recurrente.
+- Servicio Unico representa un tipo especializado de Servicio sin renovacion periodica.
 - Cuenta Google Ads representa un tipo especializado de Servicio prepago.
 - Cuenta Google Ads agrupa Recargas Google Ads.
 - Cuenta Google Ads agrupa Consumos Google Ads.
 - Cuenta Google Ads agrupa Reportes Google Ads.
 - Factura puede incluir Servicios.
+- Factura puede incluir Servicios Unicos.
 - Factura puede incluir Recargas Google Ads.
 - Factura puede incluir Ajustes de Renovacion.
+- Factura conserva el precio aplicado en el momento de cada operacion facturable.
 - Pago puede cubrir Facturas.
 - Renovacion aplica a Servicios recurrentes.
+- Renovacion no aplica a Servicios Unicos ni a Google Ads como billetera prepago.
 - Ajuste de Renovacion puede relacionarse con Renovaciones y Servicios.
 - Notificacion puede relacionarse con Cliente, Servicio, Factura, Pago, Renovacion o Cuenta Google Ads.
-- Historial puede relacionarse con Cliente, Servicio, Dominio, Hosting, Cuenta Google Ads, Factura, Pago, Renovacion, Ajuste de Renovacion o Migracion.
+- Historial puede relacionarse con Cliente, Servicio, Dominio, Hosting, Monitoreo Google Ads, Correo Corporativo, Servicio Unico, Cuenta Google Ads, Factura, Pago, Renovacion, Ajuste de Renovacion, Historial de Precio o Migracion.
 - Migracion o Cambio de Proveedor puede relacionarse con Dominio, Hosting o servicios relacionados.
 - Solicitud de Soporte pertenece a Cliente y puede referirse a un Servicio.
 
@@ -190,6 +225,9 @@ Estas relaciones describen el comportamiento del negocio. No implican todavia ta
 - Un Hosting conceptual corresponde a un Servicio base.
 - Un Servicio SEO conceptual corresponde a un Servicio base.
 - Una Licencia conceptual corresponde a un Servicio base.
+- Un Monitoreo Google Ads conceptual corresponde a un Servicio base.
+- Un Correo Corporativo conceptual corresponde a un Servicio base.
+- Un Servicio Unico conceptual corresponde a un Servicio base.
 - Una Cuenta Google Ads conceptual corresponde a un Servicio base prepago.
 - Un Hosting incluye conceptualmente SSL dentro del mismo servicio.
 
@@ -202,6 +240,9 @@ Estas relaciones describen el comportamiento del negocio. No implican todavia ta
 - Un Cliente puede tener multiples Hostings.
 - Un Cliente puede tener multiples Servicios SEO.
 - Un Cliente puede tener multiples Licencias.
+- Un Cliente puede tener multiples Monitoreos Google Ads.
+- Un Cliente puede tener multiples Servicios de Correo Corporativo.
+- Un Cliente puede tener multiples Servicios Unicos.
 - Un Cliente puede tener multiples Cuentas Google Ads.
 - Una Cuenta Google Ads puede tener multiples Recargas Google Ads.
 - Una Cuenta Google Ads puede tener multiples Consumos Google Ads.
@@ -211,6 +252,7 @@ Estas relaciones describen el comportamiento del negocio. No implican todavia ta
 - Un Cliente puede tener multiples Notificaciones.
 - Un Cliente puede tener multiples eventos de Historial.
 - Un Servicio recurrente puede tener multiples Renovaciones a lo largo de su vida.
+- Un Servicio Unico no tiene Renovaciones.
 - Un Servicio puede tener multiples Notificaciones.
 - Un Servicio puede tener multiples eventos de Historial.
 - Un Dominio puede tener multiples eventos de Historial, incluyendo cancelaciones, reemplazos o cambios de proveedor.
@@ -221,6 +263,7 @@ Estas relaciones describen el comportamiento del negocio. No implican todavia ta
 
 - Una Factura puede incluir multiples Servicios.
 - Un Servicio puede aparecer en multiples Facturas a lo largo de su vida.
+- Una Factura puede incluir multiples Servicios Unicos.
 - Un Pago puede cubrir multiples Facturas.
 - Una Factura puede ser cubierta por multiples Pagos cuando existan pagos parciales o abonos.
 - Una Factura puede incluir multiples Recargas Google Ads.
@@ -229,6 +272,7 @@ Estas relaciones describen el comportamiento del negocio. No implican todavia ta
 - Un Ajuste de Renovacion puede relacionarse con multiples Servicios cuando busca alinear fechas de renovacion.
 - Una Factura puede cubrir multiples Renovaciones.
 - Un Servicio puede tener renovaciones facturadas en multiples Facturas a lo largo de su vida.
+- Un precio aplicado puede quedar asociado conceptualmente a multiples elementos historicos de una operacion, como factura, renovacion, ajuste o servicio unico.
 
 ## 5. Portal Cliente y Acceso Empresarial
 
@@ -242,7 +286,7 @@ Reglas conceptuales:
 - Usuario equivale a persona.
 - Una empresa cliente puede tener multiples usuarios con acceso al portal.
 - Todos los usuarios cliente consultan informacion de la misma empresa segun sus permisos.
-- Los usuarios de una empresa pueden consultar servicios, Google Ads, facturas, hosting, dominios, SEO, licencias, pagos y soporte de esa empresa.
+- Los usuarios de una empresa pueden consultar servicios, Google Ads, monitoreo Google Ads, correo corporativo, servicios unicos, facturas, hosting, dominios, SEO, licencias, pagos y soporte de esa empresa.
 - El acceso simultaneo de multiples usuarios de una misma empresa no cambia la propiedad conceptual de la informacion: la informacion pertenece a la empresa cliente.
 
 Ejemplo conceptual:
@@ -261,6 +305,8 @@ Los tipos recurrentes oficiales son:
 - Hosting.
 - Servicio SEO.
 - Licencia.
+- Monitoreo Google Ads.
+- Correo Corporativo.
 
 Cada servicio recurrente conserva su propia vigencia, estado tecnico, renovaciones, recordatorios e historial.
 
@@ -290,6 +336,18 @@ Licencia es un servicio recurrente anual o mensual segun el producto.
 
 Cada licencia mantiene su propio ciclo y estado. Una licencia anual y una licencia mensual pueden convivir para el mismo cliente.
 
+### Monitoreo Google Ads
+
+Monitoreo Google Ads es un servicio recurrente mensual.
+
+Se modela conceptualmente separado de la Cuenta Google Ads prepago. El monitoreo no representa saldo, recarga ni consumo, y puede coexistir con multiples cuentas Google Ads del mismo cliente.
+
+### Correo Corporativo
+
+Correo Corporativo es un servicio recurrente anual.
+
+Debe conservar plan de cuentas, cuentas activas, cuentas disponibles, renovaciones anuales e historial de cambios de plan.
+
 ## 7. Servicios Prepago
 
 El servicio prepago oficial actual es Google Ads.
@@ -308,7 +366,28 @@ La billetera publicitaria contempla:
 
 Google Ads no tiene renovacion fija, no es suscripcion mensual obligatoria y puede recibir recargas en cualquier momento.
 
-## 8. Facturacion
+## 8. Servicios Unicos
+
+Los servicios unicos se modelan conceptualmente como Servicios sin ciclo de renovacion.
+
+Ejemplos actuales:
+
+- Consultoria Google Ads.
+- Optimizacion Google Maps.
+- Cambio de Numero.
+- Backup / Migracion.
+- Optimizacion de Sitio Web.
+
+Reglas conceptuales:
+
+- No tienen renovacion periodica.
+- No tienen fecha de vencimiento.
+- Generan historial.
+- Pueden aparecer en facturas.
+- Pueden contratarse multiples veces por el mismo cliente.
+- Cada contratacion conserva su precio aplicado y su trazabilidad propia.
+
+## 9. Facturacion
 
 La facturacion se modela conceptualmente alrededor de Factura, Pago y Comprobante PDF.
 
@@ -318,7 +397,9 @@ Una Factura representa un cobro oficial emitido al cliente.
 
 Las facturas oficiales son emitidas por Siigo. Goowin Hub debe conservar la referencia conceptual a la factura y el PDF para consulta del cliente.
 
-Una Factura puede incluir multiples conceptos de negocio, incluyendo servicios recurrentes, recargas Google Ads y ajustes de renovacion.
+Una Factura puede incluir multiples conceptos de negocio, incluyendo servicios recurrentes, servicios unicos, recargas Google Ads y ajustes de renovacion.
+
+La Factura debe conservar el precio aplicado en cada concepto facturado. Los precios no forman parte permanente de la definicion del servicio, porque pueden cambiar con el tiempo.
 
 Ejemplos validos:
 
@@ -326,6 +407,9 @@ Ejemplos validos:
 - Hosting + SEO.
 - Dominio + Hosting + Google Ads.
 - Licencias + SEO.
+- Correo Corporativo + Monitoreo Google Ads.
+- Backup / Migracion.
+- Optimizacion Google Maps + Consultoria Google Ads.
 
 ### Pago
 
@@ -339,7 +423,18 @@ El Comprobante PDF representa el soporte documental consultable por el cliente.
 
 Para facturas oficiales, el comprobante corresponde al PDF emitido por Siigo y almacenado por Goowin Hub para consulta.
 
-## 9. Renovaciones
+### Historial de precios
+
+El historial de precios permite saber que valor fue cobrado en cada operacion.
+
+Reglas conceptuales:
+
+- Un servicio conserva su identidad aunque cambie su precio comercial.
+- Una factura conserva el precio aplicado en el momento de la venta.
+- Un servicio unico contratado en anos diferentes puede tener precios diferentes.
+- No se deben asumir precios fijos para ningun servicio.
+
+## 10. Renovaciones
 
 Las renovaciones aplican a servicios recurrentes.
 
@@ -347,7 +442,9 @@ Las renovaciones aplican a servicios recurrentes.
 
 Una Renovacion normal representa la continuidad de un servicio recurrente para un nuevo ciclo.
 
-Aplica a Dominio, Hosting, Servicio SEO y Licencia.
+Aplica a Dominio, Hosting, Servicio SEO, Licencia, Monitoreo Google Ads y Correo Corporativo.
+
+No aplica a Servicios Unicos ni a Google Ads como billetera prepago.
 
 ### Renovaciones alineadas
 
@@ -367,7 +464,7 @@ Reglas conceptuales:
 - Debe conservar historial.
 - No debe borrar ciclos anteriores.
 
-## 10. Historial y Trazabilidad
+## 11. Historial y Trazabilidad
 
 El historial es una entidad conceptual transversal.
 
@@ -380,8 +477,12 @@ Debe preservar trazabilidad para:
 - Renovaciones.
 - Pagos.
 - Facturas.
+- Servicios Unicos.
+- Monitoreo Google Ads.
+- Correo Corporativo.
 - Recargas Google Ads.
 - Consumos Google Ads.
+- Precios aplicados.
 - Ajustes de renovacion.
 - Cambios de estado comercial del cliente.
 - Cambios de estado tecnico del servicio.
@@ -393,9 +494,10 @@ Reglas conceptuales:
 - Un hosting migrado conserva la continuidad historica del servicio.
 - Una migracion no implica perdida de informacion historica.
 - Los pagos y facturas deben conservar trazabilidad financiera.
+- Los precios aplicados deben conservarse como parte de la trazabilidad comercial de cada operacion.
 - Los cambios de proveedor deben poder entenderse posteriormente desde la historia del cliente y del servicio afectado.
 
-## 11. Entidades Pendientes para Fase Futura
+## 12. Entidades Pendientes para Fase Futura
 
 Las siguientes entidades quedan reservadas para fases futuras y no forman parte del modelo conceptual inicial obligatorio:
 
@@ -418,7 +520,7 @@ Ejemplos conceptuales:
 
 Esta posibilidad queda reservada para el futuro. No se disenan permisos ni reglas detalladas en este documento.
 
-## 12. Validacion Final
+## 13. Validacion Final
 
 Este modelo conceptual es coherente con README.md, ARCHITECTURE.md y BUSINESS_RULES.md:
 
@@ -429,10 +531,14 @@ Este modelo conceptual es coherente con README.md, ARCHITECTURE.md y BUSINESS_RU
 - Usuario representa una persona.
 - Una empresa cliente puede tener multiples usuarios.
 - Cada Usuario Cliente pertenece a una unica empresa cliente.
-- Servicio es el concepto base para servicios recurrentes y prepago.
-- Dominio, Hosting, Servicio SEO y Licencia son servicios recurrentes.
+- Servicio es el concepto base para servicios recurrentes, servicios prepago y servicios unicos.
+- Dominio, Hosting, Servicio SEO, Licencia, Monitoreo Google Ads y Correo Corporativo son servicios recurrentes.
 - Google Ads se modela como Servicio + Billetera Publicitaria.
-- Un cliente puede tener multiples dominios, hostings, servicios SEO y cuentas Google Ads.
+- Monitoreo Google Ads se mantiene independiente de la inversion, recargas y consumos de Google Ads.
+- Correo Corporativo conserva plan de cuentas, cuentas activas, cuentas disponibles y renovacion anual.
+- Los Servicios Unicos no tienen renovacion periodica ni fecha de vencimiento.
+- Un cliente puede tener multiples dominios, hostings, servicios SEO, cuentas Google Ads, servicios unicos, monitoreos Google Ads y servicios de correo corporativo.
 - SSL esta integrado dentro de Hosting.
 - Las facturas oficiales son emitidas por Siigo y Goowin Hub conserva referencia y PDF para consulta.
-- El historial preserva trazabilidad de migraciones, cambios de proveedor, dominios reemplazados, hostings migrados, renovaciones y pagos.
+- Las facturas y el historial conservan el precio aplicado en cada operacion, sin asumir precios fijos permanentes para los servicios.
+- El historial preserva trazabilidad de migraciones, cambios de proveedor, dominios reemplazados, hostings migrados, renovaciones, servicios unicos, precios aplicados y pagos.

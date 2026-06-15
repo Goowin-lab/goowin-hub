@@ -106,8 +106,10 @@ Permisos funcionales:
 
 Reglas:
 
-- Servicio es el concepto base para servicios recurrentes y prepago.
-- Cada servicio mantiene su propio estado tecnico e historial.
+- Servicio es el concepto base para servicios recurrentes, servicios prepago y servicios unicos.
+- Cada servicio mantiene su propio estado tecnico u operativo e historial.
+- Los servicios unicos no generan renovaciones ni fechas de vencimiento.
+- Los precios no forman parte permanente de la definicion de un servicio; las operaciones facturables deben conservar el precio aplicado.
 
 ## 6. Dominios
 
@@ -231,8 +233,82 @@ Reglas:
 - Cada cuenta mantiene saldo, consumo, recargas, historial y reportes de forma independiente.
 - Google Ads no tiene renovacion fija.
 - Google Ads puede recibir recargas en cualquier momento.
+- Monitoreo Google Ads es un servicio recurrente independiente de la billetera publicitaria.
 
-## 11. Facturacion
+## 11. Monitoreo Google Ads
+
+Modulo responsable del servicio recurrente mensual de Monitoreo Google Ads.
+
+Operaciones conceptuales:
+
+- Crear servicio.
+- Renovar servicio.
+- Suspender servicio.
+- Consultar servicio.
+- Consultar historial.
+
+Permisos funcionales:
+
+- Administrador Goowin: puede crear, renovar, suspender, consultar y consultar historial del servicio.
+- Editor Goowin: puede crear, renovar, suspender, consultar y consultar historial como parte de la gestion operativa.
+- Cliente: puede consultar sus servicios de Monitoreo Google Ads y su historial visible. No puede crear, renovar ni suspender directamente desde la especificacion inicial.
+
+Reglas:
+
+- Monitoreo Google Ads es recurrente mensual.
+- Es independiente de la inversion publicitaria, recargas y consumos de las cuentas Google Ads.
+- Puede coexistir con multiples cuentas Google Ads del mismo cliente.
+- Suspender el monitoreo no modifica automaticamente el saldo de una cuenta Google Ads.
+
+## 12. Correo Corporativo
+
+Modulo responsable de servicios recurrentes anuales de correo corporativo.
+
+Operaciones conceptuales:
+
+- Registrar servicio.
+- Renovar servicio.
+- Consultar servicio.
+- Consultar historial.
+
+Permisos funcionales:
+
+- Administrador Goowin: puede registrar, renovar, consultar y consultar historial del servicio.
+- Editor Goowin: puede registrar, renovar, consultar y consultar historial como parte de la gestion operativa.
+- Cliente: puede consultar sus servicios de Correo Corporativo y su historial visible. No puede registrar ni renovar directamente desde la especificacion inicial.
+
+Reglas:
+
+- Correo Corporativo es recurrente anual.
+- Debe permitir consultar plan de cuentas, cuentas activas, cuentas disponibles y renovacion anual.
+- Cambiar el plan de cuentas debe conservar historial.
+- La renovacion anual debe conservar el precio aplicado cuando se facture.
+
+## 13. Servicios Unicos
+
+Modulo responsable de servicios puntuales sin renovacion periodica.
+
+Operaciones conceptuales:
+
+- Registrar servicio.
+- Consultar servicio.
+- Consultar historial.
+
+Permisos funcionales:
+
+- Administrador Goowin: puede registrar, consultar y consultar historial de servicios unicos.
+- Editor Goowin: puede registrar, consultar y consultar historial como parte de la gestion operativa.
+- Cliente: puede consultar sus servicios unicos y su historial visible. No puede registrar servicios unicos directamente desde la especificacion inicial.
+
+Reglas:
+
+- Los servicios unicos no generan renovaciones.
+- Los servicios unicos no tienen fecha de vencimiento.
+- Pueden aparecer en facturas.
+- Pueden contratarse multiples veces.
+- Cada operacion debe conservar historial y precio aplicado.
+
+## 14. Facturacion
 
 Modulo responsable de facturas emitidas por Siigo y consultadas desde Goowin Hub.
 
@@ -255,9 +331,10 @@ Reglas:
 - Las facturas oficiales son emitidas por Siigo.
 - Goowin Hub almacena la referencia y el PDF para consulta del cliente.
 - Una factura puede incluir multiples servicios.
-- Ejemplos validos: Dominio + Hosting, Hosting + SEO, Dominio + Hosting + Google Ads, Licencias + SEO.
+- Una factura debe conservar el precio aplicado en el momento de cada operacion facturable.
+- Ejemplos validos: Dominio + Hosting, Hosting + SEO, Dominio + Hosting + Google Ads, Licencias + SEO, Correo Corporativo + Monitoreo Google Ads, Backup / Migracion.
 
-## 12. Pagos
+## 15. Pagos
 
 Modulo responsable del registro y consulta de pagos.
 
@@ -279,7 +356,7 @@ Reglas:
 - Un pago puede cubrir una o varias facturas.
 - El historial financiero debe conservar trazabilidad.
 
-## 13. Renovaciones
+## 16. Renovaciones
 
 Modulo responsable del seguimiento de renovaciones de servicios recurrentes.
 
@@ -301,8 +378,12 @@ Reglas:
 - Las renovaciones aplican a servicios recurrentes.
 - Los ajustes de prorrateo son opcionales y deben conservar historial.
 - Hosting y Dominio no son dependencias directas.
+- Los servicios unicos no generan renovaciones.
+- Google Ads como billetera prepago no genera renovacion fija.
+- Monitoreo Google Ads genera renovaciones mensuales.
+- Correo Corporativo genera renovaciones anuales.
 
-## 14. Notificaciones
+## 17. Notificaciones
 
 Modulo responsable de avisos para usuarios internos y clientes.
 
@@ -322,8 +403,9 @@ Reglas:
 
 - Eventos relevantes incluyen proximo vencimiento, servicio vencido, pago recibido, renovacion realizada, saldo bajo Google Ads y sin saldo Google Ads.
 - Las notificaciones de saldo aplican a Google Ads como servicio prepago.
+- Los servicios unicos pueden generar notificaciones operativas, pero no recordatorios de renovacion.
 
-## 15. Soporte
+## 18. Soporte
 
 Modulo responsable de solicitudes de soporte.
 
@@ -345,7 +427,7 @@ Reglas:
 - Las solicitudes pertenecen a una empresa cliente.
 - Una solicitud puede referirse a un servicio especifico.
 
-## 16. Dashboard Cliente
+## 19. Dashboard Cliente
 
 Modulo de consulta agregada para usuarios cliente en `hub.goowin.co`.
 
@@ -353,6 +435,9 @@ Informacion que debe consultar:
 
 - Servicios activos.
 - Google Ads.
+- Monitoreo Google Ads.
+- Correo Corporativo.
+- Servicios unicos.
 - Facturas.
 - Renovaciones.
 - Notificaciones.
@@ -367,9 +452,12 @@ Reglas:
 
 - Multiples usuarios de una misma empresa pueden consultar el mismo dashboard empresarial segun sus permisos.
 - Google Ads debe mostrarse por saldo, consumo y necesidad de recarga.
+- Monitoreo Google Ads debe mostrarse como servicio recurrente mensual independiente de saldo.
+- Correo Corporativo debe mostrar plan de cuentas, cuentas activas y cuentas disponibles.
+- Servicios unicos deben consultarse como historial operativo, no como renovaciones.
 - Hosting debe mostrar SSL incluido.
 
-## 17. Dashboard Administrativo
+## 20. Dashboard Administrativo
 
 Modulo de consulta agregada para usuarios internos en `adminhub.goowin.co`.
 
@@ -379,6 +467,9 @@ Informacion que debe consultar:
 - Renovaciones proximas.
 - Servicios vencidos.
 - Google Ads con saldo bajo.
+- Monitoreo Google Ads pendiente, vencido o suspendido.
+- Correo Corporativo proximo a vencer o vencido.
+- Servicios unicos en seguimiento operativo.
 - Pagos pendientes.
 
 Permisos funcionales:
@@ -391,8 +482,9 @@ Reglas:
 
 - El dashboard administrativo prioriza la operacion diaria de Goowin.
 - Debe diferenciar estado comercial del cliente y estado tecnico de los servicios.
+- Debe diferenciar servicios recurrentes, servicios prepago y servicios unicos.
 
-## 18. Roles y Permisos
+## 21. Roles y Permisos
 
 Resumen funcional por modulo.
 
@@ -407,6 +499,9 @@ Resumen funcional por modulo.
 | SEO | Gestion total | Gestion operativa | Consulta servicios SEO propios |
 | Licencias | Gestion total | Gestion operativa | Consulta licencias propias |
 | Google Ads | Gestion total | Gestion operativa | Consulta cuentas propias, saldos, consumos, recargas y reportes |
+| Monitoreo Google Ads | Gestion total | Gestion operativa | Consulta monitoreo propio |
+| Correo Corporativo | Gestion total | Gestion operativa | Consulta correo corporativo propio |
+| Servicios Unicos | Registra y consulta | Registra y consulta | Consulta servicios unicos propios |
 | Facturacion | Registra, adjunta PDF, consulta y descarga | Registra, adjunta PDF, consulta y descarga | Consulta y descarga facturas propias |
 | Pagos | Registra y consulta | Registra y consulta | Consulta pagos propios |
 | Renovaciones | Gestion total | Gestion operativa | Consulta renovaciones propias |
@@ -423,7 +518,7 @@ Reglas transversales:
 - Cliente representa empresa u organizacion.
 - Usuario representa persona.
 
-## 19. Validacion Final
+## 22. Validacion Final
 
 Esta especificacion funcional es coherente con README.md, ARCHITECTURE.md, BUSINESS_RULES.md y DATABASE.md:
 
@@ -434,9 +529,13 @@ Esta especificacion funcional es coherente con README.md, ARCHITECTURE.md, BUSIN
 - Cliente representa empresa u organizacion.
 - Usuario representa persona.
 - Una empresa puede tener multiples usuarios cliente.
-- Dominio, Hosting, SEO y Licencias son servicios recurrentes.
+- Dominio, Hosting, SEO, Licencias, Monitoreo Google Ads y Correo Corporativo son servicios recurrentes.
 - Google Ads es servicio prepago con billetera publicitaria.
+- Servicios Unicos son servicios puntuales sin renovacion periodica ni fecha de vencimiento.
 - Un cliente puede tener multiples cuentas Google Ads.
+- Monitoreo Google Ads es independiente de inversion, recargas y consumos de Google Ads.
+- Correo Corporativo permite plan de cuentas, cuentas activas, cuentas disponibles y renovacion anual.
 - SSL esta integrado dentro de Hosting.
 - Las facturas oficiales son emitidas por Siigo y Goowin Hub almacena referencia y PDF.
-- El historial y la trazabilidad aplican a servicios, pagos, renovaciones, migraciones y cambios relevantes.
+- Las facturas deben conservar el precio aplicado en cada operacion y no asumir precios fijos permanentes.
+- El historial y la trazabilidad aplican a servicios, servicios unicos, pagos, renovaciones, migraciones, precios aplicados y cambios relevantes.

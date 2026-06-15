@@ -38,6 +38,9 @@ Pueden:
 - Registrar hosting.
 - Registrar servicios SEO.
 - Registrar licencias.
+- Registrar monitoreo Google Ads.
+- Registrar correo corporativo.
+- Registrar servicios unicos.
 - Registrar recargas Google Ads.
 - Consultar renovaciones.
 - Consultar reportes de clientes.
@@ -58,8 +61,11 @@ Puede:
 - Consultar servicios.
 - Consultar renovaciones.
 - Consultar Google Ads.
+- Consultar monitoreo Google Ads.
 - Consultar hosting.
 - Consultar dominios.
+- Consultar correo corporativo.
+- Consultar servicios unicos.
 - Consultar facturas.
 - Consultar pagos.
 - Abrir solicitudes de soporte.
@@ -137,7 +143,7 @@ Diferencias oficiales:
 
 ## 3. Tipos de Servicios
 
-Goowin Hub reconoce dos categorias oficiales de servicios: servicios recurrentes y servicios prepago.
+Goowin Hub reconoce tres categorias oficiales de servicios: servicios recurrentes, servicios prepago y servicios unicos.
 
 ### Servicios Recurrentes
 
@@ -147,6 +153,8 @@ Los servicios recurrentes son:
 - Hosting.
 - SEO.
 - Licencias.
+- Monitoreo Google Ads.
+- Correo Corporativo.
 
 Todo servicio recurrente tiene:
 
@@ -166,6 +174,27 @@ El servicio prepago oficial actual es:
 Google Ads funciona como Servicio + Billetera de Inversion Publicitaria.
 
 Google Ads no tiene renovacion fija. Puede recibir recargas en cualquier momento y su consumo depende de la inversion publicitaria ejecutada en campanas.
+
+### Servicios Unicos
+
+Los servicios unicos son servicios que se contratan para una necesidad puntual y no tienen renovacion periodica.
+
+Ejemplos actuales:
+
+- Consultoria Google Ads.
+- Optimizacion Google Maps.
+- Cambio de Numero.
+- Backup / Migracion.
+- Optimizacion de Sitio Web.
+
+Reglas:
+
+- No generan renovaciones.
+- No tienen fecha de vencimiento.
+- Generan historial.
+- Pueden aparecer en facturas.
+- Pueden contratarse multiples veces.
+- Cada contratacion debe conservar su propio historial operativo y financiero.
 
 ## 4. Reglas Google Ads
 
@@ -204,6 +233,7 @@ Reglas:
 - Las recargas no reinician el servicio ni crean una renovacion fija.
 - Toda recarga debe quedar visible en el historial del cliente.
 - Las recargas sirven para financiar campanas publicitarias.
+- Las recargas no cubren automaticamente servicios recurrentes como Monitoreo Google Ads.
 
 ### Consumo
 
@@ -225,7 +255,108 @@ Los estados oficiales de Google Ads son:
 - Sin Saldo: el saldo disponible no permite continuar la inversion publicitaria.
 - Pausado: el servicio esta detenido por decision operativa, comercial o solicitud del cliente.
 
-## 5. Reglas Dominio
+### Billetera Google Ads vs Monitoreo Google Ads
+
+Google Ads como billetera publicitaria es independiente del servicio recurrente de Monitoreo Google Ads.
+
+Reglas:
+
+- La inversion publicitaria se gestiona mediante saldo, recargas y consumos.
+- El Monitoreo Google Ads se gestiona como servicio recurrente mensual.
+- Una recarga de Google Ads no renueva automaticamente el Monitoreo Google Ads.
+- El Monitoreo Google Ads no aumenta ni reduce el saldo publicitario.
+- Un cliente puede tener multiples cuentas Google Ads y uno o varios servicios de monitoreo asociados a la gestion operativa.
+
+## 5. Reglas Monitoreo Google Ads
+
+Monitoreo Google Ads es un servicio recurrente mensual.
+
+Caracteristicas:
+
+- Es independiente de la inversion Google Ads.
+- Es independiente de las recargas Google Ads.
+- Puede coexistir con multiples cuentas Google Ads del mismo cliente.
+- Se evalua por ciclos mensuales.
+- Genera renovaciones mensuales.
+- Genera historial propio.
+
+Estados oficiales:
+
+- Activo.
+- Pendiente de pago.
+- Suspendido.
+
+Reglas:
+
+- El monitoreo no representa saldo publicitario.
+- El monitoreo no debe mezclarse con recargas ni consumos de cuentas Google Ads.
+- Un cliente puede mantener una cuenta Google Ads con saldo disponible y tener el Monitoreo Google Ads pendiente de pago.
+- Un cliente puede tener varias cuentas Google Ads y un monitoreo operativo independiente para la gestion de esas cuentas.
+- La suspension del Monitoreo Google Ads no consume ni modifica el saldo de las cuentas Google Ads.
+
+## 6. Reglas Correo Corporativo
+
+Correo Corporativo es un servicio recurrente anual.
+
+Caracteristicas:
+
+- Plan de cuentas.
+- Cuentas activas.
+- Cuentas disponibles.
+- Renovacion anual.
+
+Ejemplos de planes:
+
+- 5 cuentas.
+- 10 cuentas.
+- 20 cuentas.
+
+Estados oficiales:
+
+- Activo.
+- Proximo a vencer.
+- Vencido.
+- Suspendido.
+
+Reglas:
+
+- Todo servicio de Correo Corporativo debe tener una fecha de vencimiento anual.
+- Antes del vencimiento se deben generar recordatorios de renovacion.
+- Las cuentas activas no pueden superar el plan de cuentas contratado.
+- Las cuentas disponibles corresponden a la diferencia entre el plan contratado y las cuentas activas.
+- La renovacion conserva la continuidad historica del servicio.
+- Cambiar el plan de cuentas no elimina el historial anterior del servicio.
+
+## 7. Reglas Servicios Unicos
+
+Los Servicios Unicos cubren trabajos puntuales que no se comportan como suscripciones, billeteras ni renovaciones.
+
+Ejemplos actuales:
+
+- Consultoria Google Ads.
+- Optimizacion Google Maps.
+- Cambio de Numero.
+- Backup / Migracion.
+- Optimizacion de Sitio Web.
+
+Estados oficiales:
+
+- Pendiente.
+- En proceso.
+- Completado.
+- Cancelado.
+
+Reglas:
+
+- No generan renovaciones.
+- No tienen fecha de vencimiento.
+- Pueden aparecer en facturas.
+- Pueden contratarse multiples veces por el mismo cliente.
+- Cada contratacion debe poder consultarse historicamente.
+- Un servicio unico completado no debe desaparecer del historial del cliente.
+- Un servicio unico puede relacionarse con otros servicios existentes cuando corresponda, por ejemplo Backup / Migracion asociado a hosting.
+
+## 8. Reglas Dominio
 
 El Dominio es un servicio recurrente anual.
 
@@ -249,7 +380,7 @@ Reglas:
 - Un dominio puede ser Cancelado por decision del cliente, por reemplazo o por una decision operativa aprobada.
 - La cancelacion de un dominio no cancela automaticamente otros servicios del cliente.
 
-## 6. Reglas Hosting
+## 9. Reglas Hosting
 
 El Hosting es un servicio recurrente anual.
 
@@ -280,7 +411,7 @@ Reglas:
 - Si el cliente no renueva, el hosting puede pasar a Vencido o Suspendido segun la situacion operativa.
 - La suspension del hosting afecta la disponibilidad del servicio de hosting, pero no implica por si misma la cancelacion del dominio.
 
-## 7. Reglas SEO
+## 10. Reglas SEO
 
 SEO es un servicio recurrente mensual.
 
@@ -310,7 +441,7 @@ Reglas:
 - Cada servicio SEO debe mantener sus renovaciones de forma independiente.
 - La suspension, renovacion o finalizacion de un servicio SEO no afecta automaticamente los demas servicios SEO del mismo cliente.
 
-## 8. Reglas Licencias
+## 11. Reglas Licencias
 
 Las Licencias son servicios recurrentes cuya frecuencia depende del producto.
 
@@ -332,7 +463,7 @@ Reglas:
 - Una licencia mensual se gestiona con renovacion mensual.
 - El estado debe reflejar si la licencia esta vigente, cercana a vencerse o vencida.
 
-## 9. Reglas de Renovaciones
+## 12. Reglas de Renovaciones
 
 Las renovaciones aplican a servicios recurrentes.
 
@@ -374,8 +505,9 @@ Reglas:
 - Los recordatorios deben ayudar a priorizar la gestion operativa del equipo.
 - Los recordatorios deben poder orientar al cliente sobre que servicio requiere pago o decision.
 - Un servicio vencido debe seguir visible como pendiente de atencion hasta que sea renovado, cancelado, suspendido o cerrado segun aplique.
+- Los servicios unicos no generan renovaciones ni recordatorios de vencimiento.
 
-## 10. Ajustes de Renovacion y Prorrateos
+## 13. Ajustes de Renovacion y Prorrateos
 
 Regla oficial: Hosting y Dominio no son dependencias directas.
 
@@ -400,7 +532,7 @@ Reglas:
 - Un ajuste de prorrateo no debe asumirse automaticamente; debe responder a una decision operativa o comercial.
 - La alineacion de fechas no cambia la naturaleza independiente de Dominio y Hosting.
 
-## 11. Migraciones y Cambios de Proveedor
+## 14. Migraciones y Cambios de Proveedor
 
 Las migraciones y cambios de proveedor forman parte de la operacion real de Goowin y deben conservar la continuidad historica del cliente.
 
@@ -446,7 +578,7 @@ Reglas:
 - La migracion no implica perdida de informacion historica.
 - Las decisiones de migracion deben poder entenderse posteriormente desde el historial operativo del cliente.
 
-## 12. Reglas de Facturacion
+## 15. Reglas de Facturacion
 
 La facturacion debe reflejar las obligaciones comerciales entre Goowin y sus clientes.
 
@@ -456,7 +588,8 @@ Reglas:
 
 - Una factura representa un cobro emitido al cliente.
 - Una factura debe permitir identificar que servicios, renovaciones, recargas o ajustes cubre.
-- Una factura puede estar asociada a servicios recurrentes, recargas prepago o ajustes de prorrateo.
+- Una factura puede estar asociada a servicios recurrentes, servicios unicos, recargas prepago o ajustes de prorrateo.
+- Una factura debe conservar el precio aplicado en el momento de la venta, renovacion, recarga, ajuste o servicio unico contratado.
 - Las facturas deben quedar disponibles para consulta del cliente.
 
 ### Pagos
@@ -472,7 +605,7 @@ Reglas:
 
 Reglas:
 
-- El historial debe conservar facturas, pagos, recargas, consumos, renovaciones y ajustes relevantes.
+- El historial debe conservar facturas, pagos, recargas, consumos, renovaciones, servicios unicos, precios aplicados y ajustes relevantes.
 - El historial debe permitir entender que ocurrio, cuando ocurrio y que servicio fue afectado.
 - La informacion historica no debe perderse cuando un servicio sea cancelado, reemplazado o suspendido.
 
@@ -484,7 +617,27 @@ Reglas:
 - Deben poder consultarse como soporte operativo y financiero.
 - Un comprobante no reemplaza la confirmacion operativa del pago si Goowin requiere validacion interna.
 
-## 13. Reglas de Notificaciones
+## 16. Historial de Precios
+
+Los precios no forman parte permanente de la definicion de un servicio.
+
+Reglas:
+
+- Los precios pueden cambiar cada ano o segun decisiones comerciales de Goowin.
+- Un servicio conserva su identidad aunque cambie de precio.
+- Las facturas deben registrar el precio aplicado en el momento de la venta.
+- El historial debe permitir conocer que precio fue cobrado en cada operacion.
+- No se deben asumir precios fijos para ningun servicio.
+- El precio aplicado debe conservarse historicamente aunque el precio comercial cambie despues.
+
+Ejemplo:
+
+- Backup en 2026: $190.000.
+- Backup en 2027: $220.000.
+
+Ambas operaciones deben conservarse historicamente como cobros distintos, sin convertir Backup en un servicio recurrente ni borrar el precio aplicado anteriormente.
+
+## 17. Reglas de Notificaciones
 
 Las notificaciones deben comunicar eventos relevantes para clientes y equipo interno.
 
@@ -501,12 +654,13 @@ Reglas:
 
 - Las notificaciones deben ayudar a prevenir interrupciones de servicios.
 - Las notificaciones de renovacion aplican a servicios recurrentes.
+- Los servicios unicos pueden generar notificaciones operativas, pero no recordatorios de renovacion.
 - Las notificaciones de saldo aplican a Google Ads como servicio prepago.
 - El Administrador Goowin debe poder ver eventos relevantes de toda la operacion.
 - El Editor Goowin debe ver eventos necesarios para operar clientes y servicios.
 - El Cliente debe ver eventos relacionados con sus propios servicios, pagos, renovaciones y saldos.
 
-## 14. Dashboard Cliente
+## 18. Dashboard Cliente
 
 El Dashboard Cliente debe priorizar claridad operativa para el cliente.
 
@@ -522,10 +676,13 @@ Reglas:
 - El cliente debe poder identificar rapidamente sus servicios activos.
 - Las renovaciones proximas y servicios vencidos deben ser visibles.
 - Google Ads debe mostrarse por saldo, consumo y necesidad de recarga, no como suscripcion mensual.
+- Monitoreo Google Ads debe mostrarse como servicio recurrente mensual, no como saldo publicitario.
+- Correo Corporativo debe mostrar plan de cuentas, cuentas activas, cuentas disponibles y renovacion anual.
+- Los servicios unicos deben poder consultarse historicamente sin mostrarse como renovaciones.
 - Hosting debe mostrar el SSL como incluido.
 - La informacion financiera visible debe corresponder a facturas y pagos del propio cliente.
 
-## 15. Dashboard Administrativo
+## 19. Dashboard Administrativo
 
 El Dashboard Administrativo debe priorizar la operacion diaria de Goowin.
 
@@ -543,9 +700,10 @@ Reglas:
 - El Editor Goowin debe ver la informacion necesaria para ejecutar tareas operativas sin acceder a configuraciones sensibles.
 - Los servicios vencidos y renovaciones proximas deben ser faciles de priorizar.
 - Google Ads con saldo bajo o sin saldo debe requerir atencion visible.
+- Monitoreo Google Ads, Correo Corporativo y servicios unicos deben poder diferenciarse por su naturaleza operativa.
 - Los pagos pendientes deben permitir seguimiento comercial y operativo.
 
-## 16. Casos Especiales
+## 20. Casos Especiales
 
 ### Cliente con multiples dominios
 
@@ -620,20 +778,56 @@ Reglas:
 - La duracion estimada del saldo debe considerar el consumo promedio.
 - Varias recargas en un mes no convierten Google Ads en una suscripcion mensual.
 
-## 17. Validacion Final
+### Monitoreo Google Ads con multiples cuentas Google Ads
+
+Un cliente puede tener multiples cuentas Google Ads y un servicio de Monitoreo Google Ads independiente.
+
+Reglas:
+
+- El monitoreo no mezcla saldos de cuentas Google Ads.
+- El monitoreo no reemplaza el historial de recargas, consumos ni reportes de cada cuenta.
+- Una cuenta Google Ads puede estar Sin Saldo mientras el Monitoreo Google Ads permanece Activo.
+- Un Monitoreo Google Ads suspendido no implica automaticamente pausar las cuentas Google Ads.
+
+### Correo Corporativo con cambio de plan
+
+Un cliente puede cambiar el plan de cuentas de Correo Corporativo en una renovacion o decision comercial aprobada.
+
+Reglas:
+
+- El cambio de plan debe conservar historial.
+- Las cuentas activas y disponibles deben evaluarse contra el plan vigente en ese momento.
+- El precio aplicado al cambio o renovacion debe conservarse en la factura o historial correspondiente.
+
+### Servicios unicos contratados multiples veces
+
+Un cliente puede contratar el mismo tipo de servicio unico mas de una vez.
+
+Reglas:
+
+- Cada contratacion debe conservar su propio historial.
+- Cada factura debe conservar el precio aplicado en esa operacion.
+- Un servicio unico contratado en distintos anos puede tener precios diferentes sin perder trazabilidad.
+
+## 21. Validacion Final
 
 Estas reglas son coherentes con la arquitectura oficial de Goowin Hub:
 
 - Goowin Hub es una plataforma central de servicios digitales.
+- Goowin Hub reconoce servicios recurrentes, servicios prepago y servicios unicos.
 - Google Ads es un servicio prepago tipo billetera de inversion publicitaria.
 - Dominio es un servicio recurrente anual.
 - Hosting es un servicio recurrente anual.
 - SEO es un servicio recurrente mensual.
 - Licencias pueden ser anuales o mensuales segun el producto.
+- Monitoreo Google Ads es un servicio recurrente mensual independiente de la inversion publicitaria.
+- Correo Corporativo es un servicio recurrente anual con plan de cuentas, cuentas activas y cuentas disponibles.
+- Los servicios unicos no generan renovaciones ni fechas de vencimiento.
 - SSL esta integrado dentro de Hosting.
 - Un cliente puede tener multiples servicios SEO independientes.
 - Un cliente puede tener multiples cuentas Google Ads independientes.
 - El Estado Comercial del Cliente es distinto del Estado Tecnico del Servicio.
 - Las migraciones y cambios de proveedor conservan trazabilidad e historial.
+- Los precios no forman parte permanente de la definicion de un servicio y deben conservarse como precio aplicado en cada operacion.
 - Los roles oficiales son Administrador Goowin, Editor Goowin, Cliente y Agencia como fase futura.
 - Las reglas aqui descritas no crean codigo, tablas SQL, entidades, endpoints, diagramas tecnicos ni diseno de base de datos.

@@ -18,13 +18,20 @@ Las siguientes entidades conceptuales representan el nucleo del sistema.
 
 Representa una persona que accede al sistema.
 
-Incluye conceptualmente usuarios internos de Goowin y usuarios cliente. Sus permisos dependen del rol funcional: Administrador Goowin, Editor Goowin, Cliente o Agencia en fase futura.
+Existen dos grupos conceptuales:
+
+- Usuarios Internos Goowin: personas del equipo Goowin, como Administrador Goowin y Editor Goowin.
+- Usuarios Cliente: personas pertenecientes a una empresa cliente, con acceso al portal cliente para consultar informacion de esa empresa.
+
+Usuario representa siempre una persona, no una empresa.
 
 ### Cliente
 
-Representa la cuenta comercial atendida por Goowin.
+Representa una organizacion, empresa o cuenta comercial administrada por Goowin.
 
-Agrupa servicios contratados, facturas, pagos, notificaciones, historial, estado comercial y solicitudes operativas asociadas a la relacion con Goowin.
+Cliente no representa necesariamente una persona individual. Una empresa cliente puede tener multiples usuarios con acceso al sistema.
+
+Agrupa servicios contratados, facturas, pagos, notificaciones, historial, estado comercial, usuarios cliente y solicitudes operativas asociadas a la relacion con Goowin.
 
 ### Servicio
 
@@ -139,7 +146,10 @@ Se incluye en el modelo conceptual porque el Cliente puede abrir solicitudes de 
 Las relaciones conceptuales principales son:
 
 - Usuario se asocia con un rol funcional.
-- Usuario puede estar asociado a Cliente cuando representa acceso de cliente.
+- Usuario puede ser interno de Goowin o pertenecer a una empresa cliente.
+- Cliente representa una Empresa u Organizacion.
+- Cliente agrupa multiples Usuarios Cliente.
+- Usuario Cliente pertenece a un Cliente.
 - Cliente agrupa Servicios.
 - Cliente agrupa Dominios.
 - Cliente agrupa Hostings.
@@ -185,7 +195,8 @@ Estas relaciones describen el comportamiento del negocio. No implican todavia ta
 
 ### Uno a muchos
 
-- Un Cliente puede tener multiples Usuarios con acceso de cliente.
+- Un Cliente puede tener multiples Usuarios Cliente.
+- Cada Usuario Cliente pertenece a un unico Cliente.
 - Un Cliente puede tener multiples Servicios.
 - Un Cliente puede tener multiples Dominios.
 - Un Cliente puede tener multiples Hostings.
@@ -219,7 +230,28 @@ Estas relaciones describen el comportamiento del negocio. No implican todavia ta
 - Una Factura puede cubrir multiples Renovaciones.
 - Un Servicio puede tener renovaciones facturadas en multiples Facturas a lo largo de su vida.
 
-## 5. Servicios Recurrentes
+## 5. Portal Cliente y Acceso Empresarial
+
+El Portal Cliente corresponde conceptualmente a `hub.goowin.co`.
+
+Multiples usuarios de una misma empresa cliente pueden acceder al portal cliente.
+
+Reglas conceptuales:
+
+- Cliente equivale a empresa u organizacion.
+- Usuario equivale a persona.
+- Una empresa cliente puede tener multiples usuarios con acceso al portal.
+- Todos los usuarios cliente consultan informacion de la misma empresa segun sus permisos.
+- Los usuarios de una empresa pueden consultar servicios, Google Ads, facturas, hosting, dominios, SEO, licencias, pagos y soporte de esa empresa.
+- El acceso simultaneo de multiples usuarios de una misma empresa no cambia la propiedad conceptual de la informacion: la informacion pertenece a la empresa cliente.
+
+Ejemplo conceptual:
+
+- Empresa cliente: Papeles Contables SAS.
+- Usuarios cliente: Luis Moreno, Contabilidad, Marketing y Asistente Administrativo.
+- Todos consultan informacion asociada a Papeles Contables SAS.
+
+## 6. Servicios Recurrentes
 
 Los servicios recurrentes se modelan conceptualmente como Servicios con ciclo de renovacion.
 
@@ -258,7 +290,7 @@ Licencia es un servicio recurrente anual o mensual segun el producto.
 
 Cada licencia mantiene su propio ciclo y estado. Una licencia anual y una licencia mensual pueden convivir para el mismo cliente.
 
-## 6. Servicios Prepago
+## 7. Servicios Prepago
 
 El servicio prepago oficial actual es Google Ads.
 
@@ -276,7 +308,7 @@ La billetera publicitaria contempla:
 
 Google Ads no tiene renovacion fija, no es suscripcion mensual obligatoria y puede recibir recargas en cualquier momento.
 
-## 7. Facturacion
+## 8. Facturacion
 
 La facturacion se modela conceptualmente alrededor de Factura, Pago y Comprobante PDF.
 
@@ -307,7 +339,7 @@ El Comprobante PDF representa el soporte documental consultable por el cliente.
 
 Para facturas oficiales, el comprobante corresponde al PDF emitido por Siigo y almacenado por Goowin Hub para consulta.
 
-## 8. Renovaciones
+## 9. Renovaciones
 
 Las renovaciones aplican a servicios recurrentes.
 
@@ -335,7 +367,7 @@ Reglas conceptuales:
 - Debe conservar historial.
 - No debe borrar ciclos anteriores.
 
-## 9. Historial y Trazabilidad
+## 10. Historial y Trazabilidad
 
 El historial es una entidad conceptual transversal.
 
@@ -363,7 +395,7 @@ Reglas conceptuales:
 - Los pagos y facturas deben conservar trazabilidad financiera.
 - Los cambios de proveedor deben poder entenderse posteriormente desde la historia del cliente y del servicio afectado.
 
-## 10. Entidades Pendientes para Fase Futura
+## 11. Entidades Pendientes para Fase Futura
 
 Las siguientes entidades quedan reservadas para fases futuras y no forman parte del modelo conceptual inicial obligatorio:
 
@@ -374,14 +406,29 @@ Las siguientes entidades quedan reservadas para fases futuras y no forman parte 
 
 Estas entidades deberan definirse cuando existan reglas de negocio aprobadas para cada una.
 
-## 11. Validacion Final
+### Roles internos para usuarios cliente
+
+En fases futuras podran existir roles internos dentro de una empresa cliente.
+
+Ejemplos conceptuales:
+
+- Administrador Cliente.
+- Usuario Cliente.
+- Solo Lectura.
+
+Esta posibilidad queda reservada para el futuro. No se disenan permisos ni reglas detalladas en este documento.
+
+## 12. Validacion Final
 
 Este modelo conceptual es coherente con README.md, ARCHITECTURE.md y BUSINESS_RULES.md:
 
 - Goowin Hub se mantiene como plataforma central de servicios digitales.
 - PostgreSQL y Prisma se mantienen como destino futuro, sin diseno fisico en este documento.
 - El modelo no define SQL, Prisma Schema, migraciones, endpoints, DTOs, entidades NestJS, tablas fisicas, campos, columnas ni diagramas tecnicos.
-- Cliente es el eje comercial del sistema.
+- Cliente es el eje comercial del sistema y representa una empresa u organizacion.
+- Usuario representa una persona.
+- Una empresa cliente puede tener multiples usuarios.
+- Cada Usuario Cliente pertenece a una unica empresa cliente.
 - Servicio es el concepto base para servicios recurrentes y prepago.
 - Dominio, Hosting, Servicio SEO y Licencia son servicios recurrentes.
 - Google Ads se modela como Servicio + Billetera Publicitaria.

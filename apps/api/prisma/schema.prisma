@@ -29,6 +29,7 @@ enum ClientCommercialStatus {
 enum ServiceCategory {
   RECURRENT
   PREPAID
+  ONE_TIME
 }
 
 enum ServiceType {
@@ -37,6 +38,9 @@ enum ServiceType {
   SEO
   LICENSE
   GOOGLE_ADS
+  GOOGLE_ADS_MONITORING
+  CORPORATE_EMAIL
+  ONE_TIME
 }
 
 enum BillingCycle {
@@ -59,6 +63,35 @@ enum GoogleAdsStatus {
   LOW_BALANCE
   NO_BALANCE
   PAUSED
+}
+
+enum GoogleAdsMonitoringStatus {
+  ACTIVE
+  PAYMENT_PENDING
+  SUSPENDED
+}
+
+enum CorporateEmailStatus {
+  ACTIVE
+  RENEWAL_SOON
+  EXPIRED
+  SUSPENDED
+}
+
+enum OneTimeServiceType {
+  GOOGLE_ADS_CONSULTING
+  GOOGLE_MAPS_OPTIMIZATION
+  NUMBER_CHANGE
+  BACKUP_MIGRATION
+  WEBSITE_OPTIMIZATION
+  OTHER
+}
+
+enum OneTimeServiceStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
 }
 
 enum InvoiceStatus {
@@ -98,10 +131,25 @@ enum RenewalStatus {
   CANCELLED
 }
 
+enum RenewalType {
+  NORMAL
+  ALIGNED
+}
+
 enum RenewalAdjustmentType {
   PRORATION
   ALIGNMENT
   MANUAL_ADJUSTMENT
+}
+
+enum PriceHistorySource {
+  INVOICE_LINE_ITEM
+  RENEWAL
+  RENEWAL_ADJUSTMENT
+  GOOGLE_ADS_TOP_UP
+  ONE_TIME_SERVICE
+  MANUAL
+  OTHER
 }
 
 enum NotificationType {
@@ -111,6 +159,9 @@ enum NotificationType {
   RENEWAL_COMPLETED
   GOOGLE_ADS_LOW_BALANCE
   GOOGLE_ADS_NO_BALANCE
+  ONE_TIME_SERVICE_COMPLETED
+  CORPORATE_EMAIL_RENEWAL_UPCOMING
+  GOOGLE_ADS_MONITORING_SUSPENDED
 }
 
 enum NotificationAudience {
@@ -155,6 +206,13 @@ enum HistoryEventType {
   GOOGLE_ADS_TOP_UP_REGISTERED
   GOOGLE_ADS_CONSUMPTION_REGISTERED
   GOOGLE_ADS_REPORT_CREATED
+  GOOGLE_ADS_MONITORING_CREATED
+  CORPORATE_EMAIL_SERVICE_CREATED
+  CORPORATE_EMAIL_PLAN_CHANGED
+  ONE_TIME_SERVICE_REGISTERED
+  ONE_TIME_SERVICE_COMPLETED
+  PRICE_APPLIED
+  PRICE_CHANGED
   SUPPORT_TICKET_CREATED
   SUPPORT_TICKET_CLOSED
   NOTE
@@ -209,6 +267,9 @@ model Client {
   hostings              Hosting[]
   seoServices           SeoService[]
   licenses              License[]
+  googleAdsMonitorings  GoogleAdsMonitoring[]
+  corporateEmailServices CorporateEmailService[]
+  oneTimeServices       OneTimeService[]
   googleAdsAccounts     GoogleAdsAccount[]
   googleAdsTopUps       GoogleAdsTopUp[]
   googleAdsConsumptions GoogleAdsConsumption[]
@@ -216,6 +277,7 @@ model Client {
   invoices              Invoice[]
   payments              Payment[]
   invoicePdfs           InvoicePdf[]
+  priceHistories        PriceHistory[]
   renewals              Renewal[]
   renewalAdjustments    RenewalAdjustment[]
   notifications         Notification[]
@@ -248,9 +310,14 @@ model Service {
   hosting          Hosting?
   seoService       SeoService?
   license          License?
+  googleAdsMonitoring GoogleAdsMonitoring?
+  corporateEmailService CorporateEmailService?
+  oneTimeService   OneTimeService? @relation("OneTimeServiceBase")
   googleAdsAccount GoogleAdsAccount?
+  relatedOneTimeServices OneTimeService[] @relation("OneTimeServiceRelated")
 
   invoiceLineItems      InvoiceLineItem[]
+  priceHistories        PriceHistory[]
   renewals              Renewal[]
   renewalAdjustmentRefs RenewalAdjustmentService[]
   notifications         Notification[]
@@ -364,6 +431,87 @@ model License {
   @@index([productName])
 }
 
+model GoogleAdsMonitoring {
+  id        String @id @default(uuid()) @db.Uuid
+  clientId  String @db.Uuid
+  serviceId String @unique @db.Uuid
+
+  status              GoogleAdsMonitoringStatus @default(ACTIVE)
+  monitoringScope     String?
+  monthlyReportNotes  String?
+  managedAccountNotes String?
+  startedAt           DateTime?
+  suspendedAt         DateTime?
+  metadata            Json?
+
+  client        Client         @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  service       Service        @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  historyEvents HistoryEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([status])
+}
+
+model CorporateEmailService {
+  id        String @id @default(uuid()) @db.Uuid
+  clientId  String @db.Uuid
+  serviceId String @unique @db.Uuid
+
+  status            CorporateEmailStatus @default(ACTIVE)
+  provider          String?
+  domainName        String?
+  planName          String?
+  planAccounts      Int
+  activeAccounts    Int                  @default(0)
+  availableAccounts Int                  @default(0)
+  notes             String?
+  metadata          Json?
+
+  client        Client         @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  service       Service        @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  historyEvents HistoryEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([status])
+  @@index([domainName])
+}
+
+model OneTimeService {
+  id        String @id @default(uuid()) @db.Uuid
+  clientId  String @db.Uuid
+  serviceId String @unique @db.Uuid
+
+  oneTimeServiceType OneTimeServiceType
+  status             OneTimeServiceStatus @default(PENDING)
+  requestedAt        DateTime             @default(now())
+  startedAt          DateTime?
+  completedAt        DateTime?
+  cancelledAt        DateTime?
+  relatedServiceId   String?              @db.Uuid
+  notes              String?
+  metadata           Json?
+
+  client         Client         @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  service        Service        @relation("OneTimeServiceBase", fields: [serviceId], references: [id], onDelete: Restrict)
+  relatedService Service?       @relation("OneTimeServiceRelated", fields: [relatedServiceId], references: [id], onDelete: SetNull)
+  priceHistories PriceHistory[]
+  historyEvents  HistoryEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([oneTimeServiceType])
+  @@index([status])
+  @@index([relatedServiceId])
+}
+
 model GoogleAdsAccount {
   id        String @id @default(uuid()) @db.Uuid
   clientId  String @db.Uuid
@@ -412,6 +560,7 @@ model GoogleAdsTopUp {
   googleAdsAccount GoogleAdsAccount  @relation(fields: [googleAdsAccountId], references: [id], onDelete: Restrict)
   createdBy        User?             @relation("GoogleAdsTopUpCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
   invoiceLineItems InvoiceLineItem[]
+  priceHistories   PriceHistory[]
   historyEvents    HistoryEvent[]
 
   createdAt DateTime @default(now())
@@ -521,6 +670,7 @@ model InvoiceLineItem {
   topUp      GoogleAdsTopUp?    @relation(fields: [topUpId], references: [id], onDelete: SetNull)
   renewal    Renewal?           @relation(fields: [renewalId], references: [id], onDelete: SetNull)
   adjustment RenewalAdjustment? @relation(fields: [adjustmentId], references: [id], onDelete: SetNull)
+  priceHistories PriceHistory[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -530,6 +680,48 @@ model InvoiceLineItem {
   @@index([topUpId])
   @@index([renewalId])
   @@index([adjustmentId])
+}
+
+model PriceHistory {
+  id        String @id @default(uuid()) @db.Uuid
+  clientId  String @db.Uuid
+  serviceId String? @db.Uuid
+
+  invoiceLineItemId   String? @db.Uuid
+  renewalId           String? @db.Uuid
+  renewalAdjustmentId String? @db.Uuid
+  googleAdsTopUpId    String? @db.Uuid
+  oneTimeServiceId    String? @db.Uuid
+
+  source       PriceHistorySource
+  description  String
+  quantity     Decimal? @db.Decimal(10, 2)
+  unitAmount   Decimal  @db.Decimal(14, 2)
+  totalAmount  Decimal  @db.Decimal(14, 2)
+  currencyCode String   @default("COP")
+  appliedAt    DateTime @default(now())
+  metadata     Json?
+
+  client            Client             @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  service           Service?           @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  invoiceLineItem   InvoiceLineItem?   @relation(fields: [invoiceLineItemId], references: [id], onDelete: SetNull)
+  renewal           Renewal?           @relation(fields: [renewalId], references: [id], onDelete: SetNull)
+  renewalAdjustment RenewalAdjustment? @relation(fields: [renewalAdjustmentId], references: [id], onDelete: SetNull)
+  googleAdsTopUp    GoogleAdsTopUp?    @relation(fields: [googleAdsTopUpId], references: [id], onDelete: SetNull)
+  oneTimeService    OneTimeService?    @relation(fields: [oneTimeServiceId], references: [id], onDelete: SetNull)
+  historyEvents     HistoryEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId, appliedAt])
+  @@index([serviceId])
+  @@index([invoiceLineItemId])
+  @@index([renewalId])
+  @@index([renewalAdjustmentId])
+  @@index([googleAdsTopUpId])
+  @@index([oneTimeServiceId])
+  @@index([source])
 }
 
 model Payment {
@@ -611,6 +803,7 @@ model Renewal {
   clientId  String @db.Uuid
   serviceId String @db.Uuid
 
+  renewalType       RenewalType   @default(NORMAL)
   status            RenewalStatus @default(UPCOMING)
   billingCycle      BillingCycle
   previousExpiresAt DateTime?
@@ -629,6 +822,7 @@ model Renewal {
   createdBy     User?               @relation("RenewalCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
   adjustments   RenewalAdjustment[]
   lineItems     InvoiceLineItem[]
+  priceHistories PriceHistory[]
   notifications Notification[]
   historyEvents HistoryEvent[]
 
@@ -637,6 +831,7 @@ model Renewal {
 
   @@index([clientId])
   @@index([serviceId])
+  @@index([renewalType])
   @@index([status])
   @@index([nextRenewalAt])
 }
@@ -661,6 +856,7 @@ model RenewalAdjustment {
   createdBy     User?                      @relation("RenewalAdjustmentCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
   services      RenewalAdjustmentService[]
   lineItems     InvoiceLineItem[]
+  priceHistories PriceHistory[]
   historyEvents HistoryEvent[]
 
   createdAt DateTime @default(now())
@@ -766,6 +962,9 @@ model HistoryEvent {
   hostingId              String? @db.Uuid
   seoServiceId           String? @db.Uuid
   licenseId              String? @db.Uuid
+  googleAdsMonitoringId  String? @db.Uuid
+  corporateEmailServiceId String? @db.Uuid
+  oneTimeServiceId       String? @db.Uuid
   googleAdsAccountId     String? @db.Uuid
   googleAdsTopUpId       String? @db.Uuid
   googleAdsConsumptionId String? @db.Uuid
@@ -773,6 +972,7 @@ model HistoryEvent {
   invoiceId              String? @db.Uuid
   invoicePdfId           String? @db.Uuid
   paymentId              String? @db.Uuid
+  priceHistoryId         String? @db.Uuid
   renewalId              String? @db.Uuid
   renewalAdjustmentId    String? @db.Uuid
   supportTicketId        String? @db.Uuid
@@ -784,6 +984,9 @@ model HistoryEvent {
   hosting              Hosting?              @relation(fields: [hostingId], references: [id], onDelete: SetNull)
   seoService           SeoService?           @relation(fields: [seoServiceId], references: [id], onDelete: SetNull)
   license              License?              @relation(fields: [licenseId], references: [id], onDelete: SetNull)
+  googleAdsMonitoring  GoogleAdsMonitoring?  @relation(fields: [googleAdsMonitoringId], references: [id], onDelete: SetNull)
+  corporateEmailService CorporateEmailService? @relation(fields: [corporateEmailServiceId], references: [id], onDelete: SetNull)
+  oneTimeService       OneTimeService?       @relation(fields: [oneTimeServiceId], references: [id], onDelete: SetNull)
   googleAdsAccount     GoogleAdsAccount?     @relation(fields: [googleAdsAccountId], references: [id], onDelete: SetNull)
   googleAdsTopUp       GoogleAdsTopUp?       @relation(fields: [googleAdsTopUpId], references: [id], onDelete: SetNull)
   googleAdsConsumption GoogleAdsConsumption? @relation(fields: [googleAdsConsumptionId], references: [id], onDelete: SetNull)
@@ -791,6 +994,7 @@ model HistoryEvent {
   invoice              Invoice?              @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
   invoicePdf           InvoicePdf?           @relation(fields: [invoicePdfId], references: [id], onDelete: SetNull)
   payment              Payment?              @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  priceHistory         PriceHistory?         @relation(fields: [priceHistoryId], references: [id], onDelete: SetNull)
   renewal              Renewal?              @relation(fields: [renewalId], references: [id], onDelete: SetNull)
   renewalAdjustment    RenewalAdjustment?    @relation(fields: [renewalAdjustmentId], references: [id], onDelete: SetNull)
   supportTicket        SupportTicket?        @relation(fields: [supportTicketId], references: [id], onDelete: SetNull)
@@ -804,9 +1008,13 @@ model HistoryEvent {
   @@index([serviceId])
   @@index([domainId])
   @@index([hostingId])
+  @@index([googleAdsMonitoringId])
+  @@index([corporateEmailServiceId])
+  @@index([oneTimeServiceId])
   @@index([googleAdsAccountId])
   @@index([invoiceId])
   @@index([paymentId])
+  @@index([priceHistoryId])
   @@index([renewalId])
   @@index([supportTicketId])
 }

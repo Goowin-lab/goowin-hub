@@ -1,0 +1,812 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  GOOWIN_ADMIN
+  GOOWIN_EDITOR
+  CLIENT
+  AGENCY
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum ClientCommercialStatus {
+  CURRENT
+  PAYMENT_PENDING
+  FOLLOW_UP
+  SUSPENDED
+}
+
+enum ServiceCategory {
+  RECURRENT
+  PREPAID
+}
+
+enum ServiceType {
+  DOMAIN
+  HOSTING
+  SEO
+  LICENSE
+  GOOGLE_ADS
+}
+
+enum BillingCycle {
+  NONE
+  MONTHLY
+  ANNUAL
+}
+
+enum ServiceTechnicalStatus {
+  ACTIVE
+  RENEWAL_SOON
+  EXPIRED
+  CANCELLED
+  SUSPENDED
+  PAYMENT_PENDING
+}
+
+enum GoogleAdsStatus {
+  ACTIVE
+  LOW_BALANCE
+  NO_BALANCE
+  PAUSED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  PARTIALLY_PAID
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  CASH
+  CARD
+  ONLINE_PAYMENT
+  OTHER
+}
+
+enum InvoicePdfSource {
+  SIIGO
+  MANUAL_UPLOAD
+}
+
+enum RenewalStatus {
+  UPCOMING
+  PENDING_PAYMENT
+  COMPLETED
+  OVERDUE
+  CANCELLED
+}
+
+enum RenewalAdjustmentType {
+  PRORATION
+  ALIGNMENT
+  MANUAL_ADJUSTMENT
+}
+
+enum NotificationType {
+  RENEWAL_UPCOMING
+  SERVICE_EXPIRED
+  PAYMENT_RECEIVED
+  RENEWAL_COMPLETED
+  GOOGLE_ADS_LOW_BALANCE
+  GOOGLE_ADS_NO_BALANCE
+}
+
+enum NotificationAudience {
+  GOOWIN_INTERNAL
+  CLIENT
+  BOTH
+}
+
+enum SupportTicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_CLIENT
+  RESOLVED
+  CLOSED
+}
+
+enum SupportTicketPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum HistoryEventType {
+  CLIENT_CREATED
+  CLIENT_STATUS_CHANGED
+  USER_CREATED
+  USER_DEACTIVATED
+  SERVICE_CREATED
+  SERVICE_STATUS_CHANGED
+  DOMAIN_REPLACED
+  DOMAIN_CANCELLED
+  HOSTING_MIGRATED
+  PROVIDER_CHANGED
+  MIGRATION
+  RENEWAL_CREATED
+  RENEWAL_COMPLETED
+  RENEWAL_ADJUSTMENT_CREATED
+  INVOICE_CREATED
+  INVOICE_PDF_ATTACHED
+  PAYMENT_REGISTERED
+  GOOGLE_ADS_TOP_UP_REGISTERED
+  GOOGLE_ADS_CONSUMPTION_REGISTERED
+  GOOGLE_ADS_REPORT_CREATED
+  SUPPORT_TICKET_CREATED
+  SUPPORT_TICKET_CLOSED
+  NOTE
+  OTHER
+}
+
+model User {
+  id        String     @id @default(uuid()) @db.Uuid
+  email     String     @unique
+  passwordHash String?
+  fullName  String
+  phone     String?
+  role      UserRole
+  status    UserStatus @default(ACTIVE)
+
+  clientId String? @db.Uuid
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  createdInvoices           Invoice[]             @relation("InvoiceCreatedBy")
+  registeredPayments        Payment[]             @relation("PaymentRegisteredBy")
+  uploadedInvoicePdfs       InvoicePdf[]          @relation("InvoicePdfUploadedBy")
+  createdGoogleAdsTopUps    GoogleAdsTopUp[]      @relation("GoogleAdsTopUpCreatedBy")
+  createdGoogleAdsReports   GoogleAdsReport[]     @relation("GoogleAdsReportCreatedBy")
+  createdRenewals           Renewal[]             @relation("RenewalCreatedBy")
+  createdRenewalAdjustments RenewalAdjustment[]   @relation("RenewalAdjustmentCreatedBy")
+  createdSupportTickets     SupportTicket[]       @relation("SupportTicketCreatedBy")
+  assignedSupportTickets    SupportTicket[]       @relation("SupportTicketAssignedTo")
+  notifications             Notification[]        @relation("NotificationRecipient")
+  historyEvents             HistoryEvent[]        @relation("HistoryEventActor")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([role])
+  @@index([status])
+}
+
+model Client {
+  id               String                 @id @default(uuid()) @db.Uuid
+  name             String
+  legalName        String?
+  taxId            String?                @unique
+  billingEmail     String?
+  phone            String?
+  commercialStatus ClientCommercialStatus @default(CURRENT)
+  notes            String?
+
+  users                 User[]
+  services              Service[]
+  domains               Domain[]
+  hostings              Hosting[]
+  seoServices           SeoService[]
+  licenses              License[]
+  googleAdsAccounts     GoogleAdsAccount[]
+  googleAdsTopUps       GoogleAdsTopUp[]
+  googleAdsConsumptions GoogleAdsConsumption[]
+  googleAdsReports      GoogleAdsReport[]
+  invoices              Invoice[]
+  payments              Payment[]
+  invoicePdfs           InvoicePdf[]
+  renewals              Renewal[]
+  renewalAdjustments    RenewalAdjustment[]
+  notifications         Notification[]
+  supportTickets        SupportTicket[]
+  historyEvents         HistoryEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([commercialStatus])
+}
+
+model Service {
+  id              String                 @id @default(uuid()) @db.Uuid
+  clientId        String                 @db.Uuid
+  serviceType     ServiceType
+  category        ServiceCategory
+  name            String
+  description     String?
+  technicalStatus ServiceTechnicalStatus @default(ACTIVE)
+  billingCycle    BillingCycle           @default(NONE)
+  startsAt        DateTime?
+  expiresAt       DateTime?
+  nextRenewalAt   DateTime?
+  lastRenewedAt   DateTime?
+  metadata        Json?
+
+  client           Client                     @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  domain           Domain?
+  hosting          Hosting?
+  seoService       SeoService?
+  license          License?
+  googleAdsAccount GoogleAdsAccount?
+
+  invoiceLineItems      InvoiceLineItem[]
+  renewals              Renewal[]
+  renewalAdjustmentRefs RenewalAdjustmentService[]
+  notifications         Notification[]
+  supportTickets        SupportTicket[]
+  historyEvents         HistoryEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId, serviceType])
+  @@index([category])
+  @@index([technicalStatus])
+  @@index([expiresAt])
+  @@index([nextRenewalAt])
+}
+
+model Domain {
+  id        String @id @default(uuid()) @db.Uuid
+  clientId  String @db.Uuid
+  serviceId String @unique @db.Uuid
+
+  domainName   String
+  registrar    String?
+  provider     String?
+  registeredAt DateTime?
+  cancelledAt  DateTime?
+
+  replacedByDomainId String? @db.Uuid
+
+  client             Client         @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  service            Service        @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  replacedByDomain   Domain?        @relation("DomainReplacement", fields: [replacedByDomainId], references: [id], onDelete: SetNull)
+  replacesDomains    Domain[]       @relation("DomainReplacement")
+  historyEvents      HistoryEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([domainName])
+  @@index([replacedByDomainId])
+}
+
+model Hosting {
+  id        String @id @default(uuid()) @db.Uuid
+  clientId  String @db.Uuid
+  serviceId String @unique @db.Uuid
+
+  name              String?
+  provider          String?
+  planName          String?
+  accountIdentifier String?
+  serverLocation    String?
+  includesSsl       Boolean   @default(true)
+  sslIssuedAt       DateTime?
+  sslExpiresAt      DateTime?
+  migratedAt        DateTime?
+
+  client        Client         @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  service       Service        @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  historyEvents HistoryEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([provider])
+}
+
+model SeoService {
+  id        String @id @default(uuid()) @db.Uuid
+  clientId  String @db.Uuid
+  serviceId String @unique @db.Uuid
+
+  websiteUrl    String?
+  packageName   String?
+  targetKeywords Json?
+  monthlyGoal   String?
+  notes         String?
+
+  client        Client         @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  service       Service        @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  historyEvents HistoryEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+}
+
+model License {
+  id        String @id @default(uuid()) @db.Uuid
+  clientId  String @db.Uuid
+  serviceId String @unique @db.Uuid
+
+  productName String
+  vendor      String?
+  licenseKey  String?
+  seats       Int     @default(1)
+  assignedTo  String?
+  metadata    Json?
+
+  client        Client         @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  service       Service        @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  historyEvents HistoryEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([productName])
+}
+
+model GoogleAdsAccount {
+  id        String @id @default(uuid()) @db.Uuid
+  clientId  String @db.Uuid
+  serviceId String @unique @db.Uuid
+
+  externalCustomerId      String?         @unique
+  accountName             String
+  status                  GoogleAdsStatus @default(ACTIVE)
+  currencyCode            String          @default("COP")
+  currentBalance          Decimal         @default(0) @db.Decimal(14, 2)
+  lowBalanceThreshold     Decimal         @default(0) @db.Decimal(14, 2)
+  averageDailyConsumption Decimal?        @db.Decimal(14, 2)
+  estimatedBalanceDays    Decimal?        @db.Decimal(10, 2)
+  lastTopUpAt             DateTime?
+  lastConsumptionAt       DateTime?
+  notes                   String?
+
+  client        Client                 @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  service       Service                @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  topUps        GoogleAdsTopUp[]
+  consumptions  GoogleAdsConsumption[]
+  reports       GoogleAdsReport[]
+  notifications Notification[]
+  historyEvents HistoryEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([status])
+}
+
+model GoogleAdsTopUp {
+  id                 String   @id @default(uuid()) @db.Uuid
+  clientId           String   @db.Uuid
+  googleAdsAccountId String   @db.Uuid
+  amount             Decimal  @db.Decimal(14, 2)
+  currencyCode       String   @default("COP")
+  toppedUpAt         DateTime @default(now())
+  reference          String?
+  notes              String?
+
+  createdByUserId String? @db.Uuid
+
+  client           Client            @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  googleAdsAccount GoogleAdsAccount  @relation(fields: [googleAdsAccountId], references: [id], onDelete: Restrict)
+  createdBy        User?             @relation("GoogleAdsTopUpCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  invoiceLineItems InvoiceLineItem[]
+  historyEvents    HistoryEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([googleAdsAccountId, toppedUpAt])
+}
+
+model GoogleAdsConsumption {
+  id                 String   @id @default(uuid()) @db.Uuid
+  clientId           String   @db.Uuid
+  googleAdsAccountId String   @db.Uuid
+  amount             Decimal  @db.Decimal(14, 2)
+  currencyCode       String   @default("COP")
+  consumedAt         DateTime @default(now())
+  campaignId         String?
+  campaignName       String?
+  description        String?
+  metadata           Json?
+
+  client           Client           @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  googleAdsAccount GoogleAdsAccount @relation(fields: [googleAdsAccountId], references: [id], onDelete: Restrict)
+  historyEvents    HistoryEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([googleAdsAccountId, consumedAt])
+}
+
+model GoogleAdsReport {
+  id                 String   @id @default(uuid()) @db.Uuid
+  clientId           String   @db.Uuid
+  googleAdsAccountId String   @db.Uuid
+  title              String
+  periodStart        DateTime
+  periodEnd          DateTime
+  summary            String?
+  metrics            Json?
+  reportUrl          String?
+
+  createdByUserId String? @db.Uuid
+
+  client           Client           @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  googleAdsAccount GoogleAdsAccount @relation(fields: [googleAdsAccountId], references: [id], onDelete: Restrict)
+  createdBy        User?            @relation("GoogleAdsReportCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  historyEvents    HistoryEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([googleAdsAccountId, periodStart, periodEnd])
+}
+
+model Invoice {
+  id          String        @id @default(uuid()) @db.Uuid
+  clientId    String        @db.Uuid
+  siigoId     String?       @unique
+  siigoNumber String?       @unique
+  status      InvoiceStatus @default(ISSUED)
+  issuedAt    DateTime
+  dueAt       DateTime?
+  subtotal    Decimal       @default(0) @db.Decimal(14, 2)
+  taxAmount   Decimal       @default(0) @db.Decimal(14, 2)
+  totalAmount Decimal       @db.Decimal(14, 2)
+  currencyCode String       @default("COP")
+  notes       String?
+
+  createdByUserId String? @db.Uuid
+
+  client        Client             @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  createdBy     User?              @relation("InvoiceCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  lineItems     InvoiceLineItem[]
+  payments      PaymentInvoice[]
+  pdfs          InvoicePdf[]
+  notifications Notification[]
+  historyEvents HistoryEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([status])
+  @@index([issuedAt])
+  @@index([dueAt])
+}
+
+model InvoiceLineItem {
+  id          String  @id @default(uuid()) @db.Uuid
+  invoiceId   String  @db.Uuid
+  serviceId   String? @db.Uuid
+  topUpId     String? @db.Uuid
+  renewalId   String? @db.Uuid
+  adjustmentId String? @db.Uuid
+
+  description  String
+  quantity     Decimal @default(1) @db.Decimal(10, 2)
+  unitAmount   Decimal @db.Decimal(14, 2)
+  totalAmount  Decimal @db.Decimal(14, 2)
+  currencyCode String  @default("COP")
+
+  invoice    Invoice            @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+  service    Service?           @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  topUp      GoogleAdsTopUp?    @relation(fields: [topUpId], references: [id], onDelete: SetNull)
+  renewal    Renewal?           @relation(fields: [renewalId], references: [id], onDelete: SetNull)
+  adjustment RenewalAdjustment? @relation(fields: [adjustmentId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([invoiceId])
+  @@index([serviceId])
+  @@index([topUpId])
+  @@index([renewalId])
+  @@index([adjustmentId])
+}
+
+model Payment {
+  id          String        @id @default(uuid()) @db.Uuid
+  clientId    String        @db.Uuid
+  amount      Decimal       @db.Decimal(14, 2)
+  currencyCode String       @default("COP")
+  status      PaymentStatus @default(CONFIRMED)
+  method      PaymentMethod?
+  reference   String?
+  receivedAt  DateTime      @default(now())
+  confirmedAt DateTime?
+  receiptUrl  String?
+  notes       String?
+
+  registeredByUserId String? @db.Uuid
+
+  client         Client            @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  registeredBy   User?             @relation("PaymentRegisteredBy", fields: [registeredByUserId], references: [id], onDelete: SetNull)
+  invoices       PaymentInvoice[]
+  notifications  Notification[]
+  historyEvents  HistoryEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([status])
+  @@index([receivedAt])
+}
+
+model PaymentInvoice {
+  id            String   @id @default(uuid()) @db.Uuid
+  paymentId     String   @db.Uuid
+  invoiceId     String   @db.Uuid
+  appliedAmount Decimal  @db.Decimal(14, 2)
+  currencyCode  String   @default("COP")
+  appliedAt     DateTime @default(now())
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([paymentId, invoiceId])
+  @@index([invoiceId])
+}
+
+model InvoicePdf {
+  id            String           @id @default(uuid()) @db.Uuid
+  clientId      String           @db.Uuid
+  invoiceId     String           @db.Uuid
+  fileName      String
+  fileUrl       String
+  storageKey    String?
+  mimeType      String?
+  fileSizeBytes Int?
+  source        InvoicePdfSource @default(SIIGO)
+  uploadedAt    DateTime         @default(now())
+
+  uploadedByUserId String? @db.Uuid
+
+  client     Client  @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  invoice    Invoice @relation(fields: [invoiceId], references: [id], onDelete: Restrict)
+  uploadedBy User?   @relation("InvoicePdfUploadedBy", fields: [uploadedByUserId], references: [id], onDelete: SetNull)
+
+  historyEvents HistoryEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([invoiceId])
+}
+
+model Renewal {
+  id        String @id @default(uuid()) @db.Uuid
+  clientId  String @db.Uuid
+  serviceId String @db.Uuid
+
+  status            RenewalStatus @default(UPCOMING)
+  billingCycle      BillingCycle
+  previousExpiresAt DateTime?
+  cycleStartAt      DateTime?
+  cycleEndAt        DateTime?
+  nextRenewalAt     DateTime?
+  renewedAt         DateTime?
+  amount            Decimal?      @db.Decimal(14, 2)
+  currencyCode      String        @default("COP")
+  notes             String?
+
+  createdByUserId String? @db.Uuid
+
+  client        Client              @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  service       Service             @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  createdBy     User?               @relation("RenewalCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  adjustments   RenewalAdjustment[]
+  lineItems     InvoiceLineItem[]
+  notifications Notification[]
+  historyEvents HistoryEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([serviceId])
+  @@index([status])
+  @@index([nextRenewalAt])
+}
+
+model RenewalAdjustment {
+  id        String @id @default(uuid()) @db.Uuid
+  clientId  String @db.Uuid
+  renewalId String? @db.Uuid
+
+  adjustmentType  RenewalAdjustmentType @default(PRORATION)
+  reason          String
+  amount          Decimal               @db.Decimal(14, 2)
+  currencyCode    String                @default("COP")
+  periodStartAt   DateTime?
+  periodEndAt     DateTime?
+  targetRenewalAt DateTime?
+
+  createdByUserId String? @db.Uuid
+
+  client        Client                     @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  renewal       Renewal?                   @relation(fields: [renewalId], references: [id], onDelete: SetNull)
+  createdBy     User?                      @relation("RenewalAdjustmentCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  services      RenewalAdjustmentService[]
+  lineItems     InvoiceLineItem[]
+  historyEvents HistoryEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([renewalId])
+  @@index([adjustmentType])
+}
+
+model RenewalAdjustmentService {
+  id                  String @id @default(uuid()) @db.Uuid
+  renewalAdjustmentId String @db.Uuid
+  serviceId           String @db.Uuid
+
+  renewalAdjustment RenewalAdjustment @relation(fields: [renewalAdjustmentId], references: [id], onDelete: Restrict)
+  service           Service           @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([renewalAdjustmentId, serviceId])
+  @@index([serviceId])
+}
+
+model Notification {
+  id           String               @id @default(uuid()) @db.Uuid
+  clientId     String?              @db.Uuid
+  recipientUserId String?           @db.Uuid
+  serviceId    String?              @db.Uuid
+  invoiceId    String?              @db.Uuid
+  paymentId    String?              @db.Uuid
+  renewalId    String?              @db.Uuid
+  googleAdsAccountId String?        @db.Uuid
+  supportTicketId    String?        @db.Uuid
+  notificationType NotificationType
+  audience     NotificationAudience
+  title        String
+  message      String?
+  readAt       DateTime?
+  metadata     Json?
+
+  client           Client?           @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  recipientUser    User?             @relation("NotificationRecipient", fields: [recipientUserId], references: [id], onDelete: SetNull)
+  service          Service?          @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  invoice          Invoice?          @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  payment          Payment?          @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  renewal          Renewal?          @relation(fields: [renewalId], references: [id], onDelete: SetNull)
+  googleAdsAccount GoogleAdsAccount? @relation(fields: [googleAdsAccountId], references: [id], onDelete: SetNull)
+  supportTicket    SupportTicket?    @relation(fields: [supportTicketId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId, readAt])
+  @@index([recipientUserId, readAt])
+  @@index([notificationType])
+}
+
+model SupportTicket {
+  id        String @id @default(uuid()) @db.Uuid
+  clientId  String @db.Uuid
+  serviceId String? @db.Uuid
+
+  subject     String
+  description String
+  status      SupportTicketStatus   @default(OPEN)
+  priority    SupportTicketPriority @default(NORMAL)
+  closedAt    DateTime?
+
+  createdByUserId  String? @db.Uuid
+  assignedToUserId String? @db.Uuid
+
+  client        Client          @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  service       Service?        @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  createdBy     User?           @relation("SupportTicketCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  assignedTo    User?           @relation("SupportTicketAssignedTo", fields: [assignedToUserId], references: [id], onDelete: SetNull)
+  notifications Notification[]
+  historyEvents HistoryEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([serviceId])
+  @@index([status])
+  @@index([assignedToUserId])
+}
+
+model HistoryEvent {
+  id          String           @id @default(uuid()) @db.Uuid
+  clientId    String?          @db.Uuid
+  actorUserId String?          @db.Uuid
+  eventType   HistoryEventType
+  title       String
+  description String?
+  occurredAt  DateTime         @default(now())
+  visibleToClient Boolean      @default(false)
+  metadata    Json?
+
+  serviceId              String? @db.Uuid
+  domainId               String? @db.Uuid
+  hostingId              String? @db.Uuid
+  seoServiceId           String? @db.Uuid
+  licenseId              String? @db.Uuid
+  googleAdsAccountId     String? @db.Uuid
+  googleAdsTopUpId       String? @db.Uuid
+  googleAdsConsumptionId String? @db.Uuid
+  googleAdsReportId      String? @db.Uuid
+  invoiceId              String? @db.Uuid
+  invoicePdfId           String? @db.Uuid
+  paymentId              String? @db.Uuid
+  renewalId              String? @db.Uuid
+  renewalAdjustmentId    String? @db.Uuid
+  supportTicketId        String? @db.Uuid
+
+  client               Client?               @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  actorUser            User?                 @relation("HistoryEventActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  service              Service?              @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  domain               Domain?               @relation(fields: [domainId], references: [id], onDelete: SetNull)
+  hosting              Hosting?              @relation(fields: [hostingId], references: [id], onDelete: SetNull)
+  seoService           SeoService?           @relation(fields: [seoServiceId], references: [id], onDelete: SetNull)
+  license              License?              @relation(fields: [licenseId], references: [id], onDelete: SetNull)
+  googleAdsAccount     GoogleAdsAccount?     @relation(fields: [googleAdsAccountId], references: [id], onDelete: SetNull)
+  googleAdsTopUp       GoogleAdsTopUp?       @relation(fields: [googleAdsTopUpId], references: [id], onDelete: SetNull)
+  googleAdsConsumption GoogleAdsConsumption? @relation(fields: [googleAdsConsumptionId], references: [id], onDelete: SetNull)
+  googleAdsReport      GoogleAdsReport?      @relation(fields: [googleAdsReportId], references: [id], onDelete: SetNull)
+  invoice              Invoice?              @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  invoicePdf           InvoicePdf?           @relation(fields: [invoicePdfId], references: [id], onDelete: SetNull)
+  payment              Payment?              @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  renewal              Renewal?              @relation(fields: [renewalId], references: [id], onDelete: SetNull)
+  renewalAdjustment    RenewalAdjustment?    @relation(fields: [renewalAdjustmentId], references: [id], onDelete: SetNull)
+  supportTicket        SupportTicket?        @relation(fields: [supportTicketId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId, occurredAt])
+  @@index([actorUserId])
+  @@index([eventType])
+  @@index([serviceId])
+  @@index([domainId])
+  @@index([hostingId])
+  @@index([googleAdsAccountId])
+  @@index([invoiceId])
+  @@index([paymentId])
+  @@index([renewalId])
+  @@index([supportTicketId])
+}

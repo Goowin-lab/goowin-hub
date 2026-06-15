@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-plus-jakarta: 'Plus Jakarta Sans';
+  --font-montserrat: 'Montserrat';
+  --background: 210 33% 98%;
+  --foreground: 0 0% 13%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 13%;
+  --primary: 208 99% 50%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 25% 96%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 210 25% 96%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 209 100% 96%;
+  --accent-foreground: 208 99% 33%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 208 99% 50%;
+  --radius: 8px;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+html {
+  min-height: 100%;
+  background: hsl(var(--background));
+}
+
+body {
+  min-height: 100%;
+  background:
+    linear-gradient(180deg, rgba(1, 136, 253, 0.04), rgba(255, 255, 255, 0) 260px),
+    hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--font-plus-jakarta), 'Plus Jakarta Sans', Arial, sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(1, 136, 253, 0.18);
+}

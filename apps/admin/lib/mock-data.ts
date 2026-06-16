@@ -1,9 +1,3 @@
-export type CommercialStatus =
-  | 'Al día'
-  | 'Pago pendiente'
-  | 'En seguimiento'
-  | 'Suspendido';
-
 export const dashboardStats = [
   {
     title: 'Clientes activos',
@@ -28,39 +22,6 @@ export const dashboardStats = [
     value: '17',
     detail: 'Prioridad para gestión comercial',
     tone: 'slate' as const,
-  },
-];
-
-export const clients = [
-  {
-    id: 'cli-001',
-    company: 'Papeles Contables SAS',
-    status: 'Al día' as CommercialStatus,
-    createdAt: '2026-01-15',
-  },
-  {
-    id: 'cli-002',
-    company: 'Andes Retail Group',
-    status: 'Pago pendiente' as CommercialStatus,
-    createdAt: '2026-02-03',
-  },
-  {
-    id: 'cli-003',
-    company: 'Clinica Norte Digital',
-    status: 'En seguimiento' as CommercialStatus,
-    createdAt: '2026-03-21',
-  },
-  {
-    id: 'cli-004',
-    company: 'Constructora Horizonte',
-    status: 'Al día' as CommercialStatus,
-    createdAt: '2026-04-07',
-  },
-  {
-    id: 'cli-005',
-    company: 'Lima Partners',
-    status: 'Suspendido' as CommercialStatus,
-    createdAt: '2026-05-12',
   },
 ];
 

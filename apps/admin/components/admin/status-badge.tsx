@@ -1,13 +1,8 @@
 import { Badge } from '@/components/ui/badge';
-
-type CommercialStatus =
-  | 'Al día'
-  | 'Pago pendiente'
-  | 'En seguimiento'
-  | 'Suspendido';
+import type { CommercialStatusLabel } from '@/lib/api/clients';
 
 const statusVariant: Record<
-  CommercialStatus,
+  CommercialStatusLabel,
   'success' | 'warning' | 'neutral' | 'destructive'
 > = {
   'Al día': 'success',
@@ -16,6 +11,6 @@ const statusVariant: Record<
   Suspendido: 'destructive',
 };
 
-export function StatusBadge({ status }: { status: CommercialStatus }) {
+export function StatusBadge({ status }: { status: CommercialStatusLabel }) {
   return <Badge variant={statusVariant[status]}>{status}</Badge>;
 }

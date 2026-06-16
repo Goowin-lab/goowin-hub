@@ -40,7 +40,9 @@ export async function goowinApiFetch<T>(
   path: string,
   options: ApiFetchOptions = {},
 ): Promise<T> {
-  if (!appConfig.apiToken) {
+  const apiToken = appConfig.apiToken;
+
+  if (!apiToken) {
     throw new GoowinApiConfigurationError(
       'GOOWIN_API_TOKEN is required to call the Goowin Hub API.',
     );
@@ -56,7 +58,7 @@ export async function goowinApiFetch<T>(
       cache: 'no-store',
       headers: {
         Accept: 'application/json',
-        Authorization: `Bearer ${appConfig.apiToken}`,
+        Authorization: `Bearer ${apiToken}`,
         'Content-Type': 'application/json',
       },
       method: options.method ?? 'GET',

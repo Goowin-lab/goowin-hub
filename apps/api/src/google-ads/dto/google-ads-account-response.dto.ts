@@ -27,7 +27,14 @@ export class GoogleAdsAccountResponseDto {
   currencyCode!: string;
 
   @ApiProperty({
-    description: 'Calculated balance: top-ups minus consumptions.',
+    description: 'Commercial CPC multiplier configured per account.',
+    type: String,
+  })
+  cpcMultiplier!: string;
+
+  @ApiProperty({
+    description:
+      'Available balance. Uses the latest daily movement when available, otherwise top-ups minus consumptions.',
     type: String,
   })
   balance!: string;
@@ -49,6 +56,22 @@ export class GoogleAdsAccountResponseDto {
 
   @ApiPropertyOptional({ nullable: true, type: String })
   lastConsumptionAmount!: string | null;
+
+  @ApiProperty({
+    description: 'Total conversions registered in daily movements.',
+  })
+  conversions!: number;
+
+  @ApiProperty({
+    description: 'Total clicks registered in daily movements.',
+  })
+  clicks!: number;
+
+  @ApiPropertyOptional({ format: 'date', nullable: true, type: Date })
+  latestMovementDate!: Date | null;
+
+  @ApiPropertyOptional({ nullable: true, type: String })
+  latestMovementCpcSale!: string | null;
 
   @ApiPropertyOptional({ nullable: true, type: String })
   notes!: string | null;

@@ -11,6 +11,7 @@ export type GoogleAdsAccount = {
   customerId: string | null;
   status: GoogleAdsStatus;
   currencyCode: string;
+  cpcMultiplier: string;
   balance: string;
   totalTopUps: string;
   totalConsumptions: string;
@@ -18,6 +19,31 @@ export type GoogleAdsAccount = {
   lastTopUpAmount: string | null;
   lastConsumptionAt: string | null;
   lastConsumptionAmount: string | null;
+  conversions: number;
+  clicks: number;
+  latestMovementDate: string | null;
+  latestMovementCpcSale: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type GoogleAdsDailyMovement = {
+  id: string;
+  clientId: string;
+  clientName: string;
+  googleAdsAccountId: string;
+  accountName: string;
+  movementDate: string;
+  conversions: number;
+  clicks: number;
+  cpcCost: string;
+  cpcMultiplier: string;
+  cpcSale: string;
+  consumption: string;
+  topUp: string;
+  balance: string;
+  currencyCode: string;
   notes: string | null;
   createdAt: string;
   updatedAt: string;
@@ -26,6 +52,16 @@ export type GoogleAdsAccount = {
 export type CreateGoogleAdsAccountPayload = {
   accountName: string;
   clientId: string;
+  cpcMultiplier?: string;
+  currencyCode?: string;
+  customerId?: string;
+  notes?: string;
+  status?: GoogleAdsStatus;
+};
+
+export type UpdateGoogleAdsAccountPayload = {
+  accountName?: string;
+  cpcMultiplier?: string;
   currencyCode?: string;
   customerId?: string;
   notes?: string;
@@ -43,6 +79,17 @@ export type CreateGoogleAdsConsumptionPayload = {
   amount: string;
   consumedAt?: string;
   notes?: string;
+};
+
+export type CreateGoogleAdsDailyMovementPayload = {
+  balance?: string;
+  clicks?: number;
+  consumption?: string;
+  conversions?: number;
+  cpcCost: string;
+  movementDate: string;
+  notes?: string;
+  topUp?: string;
 };
 
 export const googleAdsStatusLabels: Record<GoogleAdsStatus, string> = {
@@ -75,6 +122,16 @@ export function createGoogleAdsAccount(
   });
 }
 
+export function updateGoogleAdsAccount(
+  accountId: string,
+  payload: UpdateGoogleAdsAccountPayload,
+) {
+  return goowinApiFetch<GoogleAdsAccount>(`/google-ads/accounts/${accountId}`, {
+    body: payload,
+    method: 'PATCH',
+  });
+}
+
 export function createGoogleAdsTopUp(
   accountId: string,
   payload: CreateGoogleAdsTopUpPayload,
@@ -83,6 +140,25 @@ export function createGoogleAdsTopUp(
     body: payload,
     method: 'POST',
   });
+}
+
+export function getGoogleAdsDailyMovements(accountId: string) {
+  return goowinApiFetch<GoogleAdsDailyMovement[]>(
+    `/google-ads/accounts/${accountId}/daily-movements`,
+  );
+}
+
+export function createGoogleAdsDailyMovement(
+  accountId: string,
+  payload: CreateGoogleAdsDailyMovementPayload,
+) {
+  return goowinApiFetch<GoogleAdsDailyMovement>(
+    `/google-ads/accounts/${accountId}/daily-movements`,
+    {
+      body: payload,
+      method: 'POST',
+    },
+  );
 }
 
 export function createGoogleAdsConsumption(

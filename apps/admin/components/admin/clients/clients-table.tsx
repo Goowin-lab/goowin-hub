@@ -14,9 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  getCommercialStatusLabel,
-} from '@/lib/api/clients';
+import { getCommercialStatusLabel } from '@/lib/client-status';
 import type { Client } from '@/lib/api/clients';
 
 type ClientsTableProps = {

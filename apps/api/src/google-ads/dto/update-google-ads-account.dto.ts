@@ -1,25 +1,21 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { GoogleAdsStatus } from '@prisma/client';
 import { Transform } from 'class-transformer';
 import {
-  IsEnum,
   IsDecimal,
+  IsEnum,
   IsOptional,
   IsString,
-  IsUUID,
   Length,
   MaxLength,
 } from 'class-validator';
 
-export class CreateGoogleAdsAccountDto {
-  @ApiProperty({ format: 'uuid' })
-  @IsUUID('4')
-  clientId!: string;
-
-  @ApiProperty({ maxLength: 160 })
+export class UpdateGoogleAdsAccountDto {
+  @ApiPropertyOptional({ maxLength: 160 })
+  @IsOptional()
   @IsString()
   @MaxLength(160)
-  accountName!: string;
+  accountName?: string;
 
   @ApiPropertyOptional({
     description: 'Google Ads Customer ID.',
@@ -31,7 +27,6 @@ export class CreateGoogleAdsAccountDto {
   customerId?: string;
 
   @ApiPropertyOptional({
-    default: GoogleAdsStatus.ACTIVE,
     enum: GoogleAdsStatus,
     enumName: 'GoogleAdsStatus',
   })
@@ -39,7 +34,7 @@ export class CreateGoogleAdsAccountDto {
   @IsEnum(GoogleAdsStatus)
   status?: GoogleAdsStatus;
 
-  @ApiPropertyOptional({ default: 'COP', minLength: 3, maxLength: 3 })
+  @ApiPropertyOptional({ minLength: 3, maxLength: 3 })
   @IsOptional()
   @IsString()
   @Length(3, 3)

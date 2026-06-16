@@ -6,6 +6,7 @@ import { ClientsModule } from './clients/clients.module';
 import { CommonModule } from './common/common.module';
 import { configuration } from './config/configuration';
 import { validateEnvironment } from './config/env.validation';
+import { GoogleAdsModule } from './google-ads/google-ads.module';
 import { HealthModule } from './health/health.module';
 import { AppLoggerModule } from './logger/logger.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -29,6 +30,7 @@ import { UsersModule } from './users/users.module';
     ClientsModule,
     UsersModule,
     ServicesModule,
+    GoogleAdsModule,
   ],
 })
 export class AppModule {}

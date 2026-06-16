@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BarChart3, Building2 } from 'lucide-react';
+import { BarChart3, Building2, Megaphone } from 'lucide-react';
 
 import { GoowinLogo } from '@/components/admin/goowin-logo';
 import { cn } from '@/lib/utils';
@@ -14,6 +14,11 @@ const navigation = [
     href: '/clients',
     label: 'Clientes',
     icon: Building2,
+  },
+  {
+    href: '/google-ads',
+    label: 'Google Ads',
+    icon: Megaphone,
   },
 ];
 

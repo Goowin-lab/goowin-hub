@@ -2,7 +2,10 @@ import { createHmac } from 'crypto';
 import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 
-const DEFAULT_API_BASE_URL = 'http://127.0.0.1:3102/api';
+const DEFAULT_API_BASE_URL = 'http://127.0.0.1:3000/api';
+const LOCAL_DEV_ADMIN_USER_ID =
+  process.env.GOOWIN_API_ACTOR_USER_ID ??
+  '00000000-0000-4000-8000-000000000001';
 
 function normalizeBaseUrl(url: string) {
   return url.replace(/\/+$/, '');
@@ -78,7 +81,7 @@ function createLocalDevelopmentApiToken() {
       exp: now + 60 * 60,
       iat: now,
       role: 'GOOWIN_ADMIN',
-      sub: 'local-admin',
+      sub: LOCAL_DEV_ADMIN_USER_ID,
     },
     secret,
   );
@@ -86,11 +89,16 @@ function createLocalDevelopmentApiToken() {
 
 export const appConfig = {
   apiBaseUrl: normalizeBaseUrl(
-    process.env.GOOWIN_API_URL ??
+    process.env.NEXT_PUBLIC_API_URL ??
       process.env.NEXT_PUBLIC_GOOWIN_API_URL ??
+      process.env.GOOWIN_API_URL ??
       DEFAULT_API_BASE_URL,
   ),
   get apiToken() {
-    return process.env.GOOWIN_API_TOKEN ?? createLocalDevelopmentApiToken();
+    return (
+      process.env.GOOWIN_API_TOKEN ??
+      process.env.NEXT_PUBLIC_GOOWIN_API_TOKEN ??
+      createLocalDevelopmentApiToken()
+    );
   },
 };

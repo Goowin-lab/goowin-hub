@@ -8,7 +8,7 @@ import {
   parseCommercialStatus,
   updateClient,
 } from '@/lib/api/clients';
-import { isApiConnectionError } from '@/lib/api/goowin-api';
+import { getApiErrorType } from '@/lib/api/goowin-api';
 
 export async function updateClientAction(id: string, formData: FormData) {
   let target = `/clients/${id}?updated=1`;
@@ -28,7 +28,7 @@ export async function updateClientAction(id: string, formData: FormData) {
       await changeClientCommercialStatus(id, commercialStatus);
     }
   } catch (error) {
-    target = isApiConnectionError(error)
+    target = (await getApiErrorType(error)) === 'connection'
       ? `/clients/${id}?error=connection`
       : `/clients/${id}?error=update`;
   }

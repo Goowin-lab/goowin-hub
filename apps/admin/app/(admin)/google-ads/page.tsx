@@ -42,7 +42,7 @@ import type {
   GoogleAdsDailyMovement,
   GoogleAdsStatus,
 } from '@/lib/api/google-ads';
-import { isApiConnectionError } from '@/lib/api/goowin-api';
+import { getApiErrorType } from '@/lib/api/goowin-api';
 import {
   createGoogleAdsAccountAction,
   createGoogleAdsConsumptionAction,
@@ -574,7 +574,7 @@ async function loadGoogleAdsData(): Promise<{
     return {
       accounts: [],
       clients: [],
-      error: isApiConnectionError(error) ? 'connection' : 'api',
+      error: await getApiErrorType(error),
       movements: [],
     };
   }

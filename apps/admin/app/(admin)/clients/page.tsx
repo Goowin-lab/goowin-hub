@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getClients } from '@/lib/api/clients';
 import type { Client } from '@/lib/api/clients';
-import { isApiConnectionError } from '@/lib/api/goowin-api';
+import { getApiErrorType } from '@/lib/api/goowin-api';
 
 export const dynamic = 'force-dynamic';
 
@@ -74,7 +74,7 @@ async function loadClients(): Promise<{
   } catch (error) {
     return {
       clients: [],
-      error: isApiConnectionError(error) ? 'connection' : 'api',
+      error: await getApiErrorType(error),
     };
   }
 }

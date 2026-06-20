@@ -31,10 +31,14 @@ export class ClientsService {
             taxId: createClientDto.taxId,
           },
         });
+        const historyActorUserId = await this.resolveHistoryActorUserId(
+          transaction,
+          actorUserId,
+        );
 
         await transaction.historyEvent.create({
           data: {
-            actorUserId,
+            actorUserId: historyActorUserId,
             clientId: client.id,
             eventType: HistoryEventType.CLIENT_CREATED,
             title: 'Client created',
@@ -146,4 +150,30 @@ export class ClientsService {
 
     throw error;
   }
+
+  private async resolveHistoryActorUserId(
+    transaction: Prisma.TransactionClient,
+    actorUserId: string,
+  ): Promise<string | undefined> {
+    if (!isUuid(actorUserId)) {
+      return undefined;
+    }
+
+    const actorUser = await transaction.user.findUnique({
+      select: {
+        id: true,
+      },
+      where: {
+        id: actorUserId,
+      },
+    });
+
+    return actorUser?.id;
+  }
+}
+
+function isUuid(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    value,
+  );
 }

@@ -10,7 +10,7 @@ import {
   parseGoogleAdsStatus,
   updateGoogleAdsAccount,
 } from '@/lib/api/google-ads';
-import { isApiConnectionError } from '@/lib/api/goowin-api';
+import { getApiErrorType } from '@/lib/api/goowin-api';
 
 export async function createGoogleAdsAccountAction(formData: FormData) {
   let target = '/google-ads?accountCreated=1';
@@ -26,7 +26,7 @@ export async function createGoogleAdsAccountAction(formData: FormData) {
       status: parseGoogleAdsStatus(formData.get('status')),
     });
   } catch (error) {
-    target = isApiConnectionError(error)
+    target = (await getApiErrorType(error)) === 'connection'
       ? '/google-ads?error=connection'
       : '/google-ads?error=account';
   }
@@ -42,7 +42,7 @@ export async function updateGoogleAdsAccountAction(formData: FormData) {
       cpcMultiplier: getRequiredString(formData.get('cpcMultiplier')),
     });
   } catch (error) {
-    target = isApiConnectionError(error)
+    target = (await getApiErrorType(error)) === 'connection'
       ? '/google-ads?error=connection'
       : '/google-ads?error=accountUpdate';
   }
@@ -61,7 +61,7 @@ export async function createGoogleAdsTopUpAction(formData: FormData) {
       toppedUpAt: getDateTimeString(formData.get('operationDate')),
     });
   } catch (error) {
-    target = isApiConnectionError(error)
+    target = (await getApiErrorType(error)) === 'connection'
       ? '/google-ads?error=connection'
       : '/google-ads?error=topUp';
   }
@@ -87,7 +87,7 @@ export async function createGoogleAdsDailyMovementAction(formData: FormData) {
       },
     );
   } catch (error) {
-    target = isApiConnectionError(error)
+    target = (await getApiErrorType(error)) === 'connection'
       ? '/google-ads?error=connection'
       : '/google-ads?error=movement';
   }
@@ -108,7 +108,7 @@ export async function createGoogleAdsConsumptionAction(formData: FormData) {
       },
     );
   } catch (error) {
-    target = isApiConnectionError(error)
+    target = (await getApiErrorType(error)) === 'connection'
       ? '/google-ads?error=connection'
       : '/google-ads?error=consumption';
   }

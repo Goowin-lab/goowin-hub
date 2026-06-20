@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { commercialStatusOptions, getClient } from '@/lib/api/clients';
 import type { Client } from '@/lib/api/clients';
-import { isApiConnectionError } from '@/lib/api/goowin-api';
+import { getApiErrorType } from '@/lib/api/goowin-api';
 import { updateClientAction } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -144,7 +144,7 @@ async function loadClient(id: string): Promise<{
   } catch (error) {
     return {
       client: null,
-      error: isApiConnectionError(error) ? 'connection' : 'api',
+      error: await getApiErrorType(error),
     };
   }
 }

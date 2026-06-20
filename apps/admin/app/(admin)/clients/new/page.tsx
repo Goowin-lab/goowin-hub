@@ -17,12 +17,13 @@ import { createClientAction } from './actions';
 
 type NewClientPageProps = {
   searchParams?: {
+    detail?: string;
     error?: string;
   };
 };
 
 export default function NewClientPage({ searchParams }: NewClientPageProps) {
-  const errorMessage = getErrorMessage(searchParams?.error);
+  const errorMessage = getErrorMessage(searchParams?.error, searchParams?.detail);
 
   return (
     <AdminShell
@@ -101,12 +102,16 @@ export default function NewClientPage({ searchParams }: NewClientPageProps) {
   );
 }
 
-function getErrorMessage(error?: string) {
+function getErrorMessage(error?: string, detail?: string) {
   if (error === 'connection') {
     return 'Error conexión API';
   }
 
   if (error === 'create') {
+    if (process.env.NODE_ENV !== 'production' && detail) {
+      return `Error creando cliente: ${detail}`;
+    }
+
     return 'Error creando cliente';
   }
 

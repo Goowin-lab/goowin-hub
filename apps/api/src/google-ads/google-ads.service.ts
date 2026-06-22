@@ -68,6 +68,7 @@ export class GoogleAdsService {
     actorUserId: string,
   ): Promise<GoogleAdsAccountResponseDto> {
     await this.ensureClientExists(createAccountDto.clientId);
+    const historyActorUserId = await this.resolveHistoryActorUserId(actorUserId);
     const cpcMultiplier = createAccountDto.cpcMultiplier
       ? this.parsePositiveDecimal(
           createAccountDto.cpcMultiplier,
@@ -109,7 +110,7 @@ export class GoogleAdsService {
 
         await transaction.historyEvent.create({
           data: {
-            actorUserId,
+            actorUserId: historyActorUserId,
             clientId: createdAccount.clientId,
             eventType: HistoryEventType.SERVICE_CREATED,
             googleAdsAccountId: createdAccount.id,
@@ -554,6 +555,31 @@ export class GoogleAdsService {
 
     return movements.map((movement) =>
       this.toClientDailyMovementResponse(movement),
+    );
+  }
+
+  private async resolveHistoryActorUserId(
+    actorUserId: string,
+  ): Promise<string | null> {
+    if (!this.isUuid(actorUserId)) {
+      return null;
+    }
+
+    const user = await this.prisma.user.findUnique({
+      select: {
+        id: true,
+      },
+      where: {
+        id: actorUserId,
+      },
+    });
+
+    return user?.id ?? null;
+  }
+
+  private isUuid(value: string): boolean {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      value,
     );
   }
 

@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import {
   BillingCycle,
+  GoogleAdsAccount,
   GoogleAdsConsumption,
   GoogleAdsDailyMovement,
   GoogleAdsStatus,
@@ -23,6 +24,10 @@ import { CreateGoogleAdsConsumptionDto } from './dto/create-google-ads-consumpti
 import { CreateGoogleAdsDailyMovementDto } from './dto/create-google-ads-daily-movement.dto';
 import { CreateGoogleAdsTopUpDto } from './dto/create-google-ads-top-up.dto';
 import { GoogleAdsAccountResponseDto } from './dto/google-ads-account-response.dto';
+import { GoogleAdsClientAccountDetailResponseDto } from './dto/google-ads-client-account-detail-response.dto';
+import { GoogleAdsClientAccountResponseDto } from './dto/google-ads-client-account-response.dto';
+import { GoogleAdsClientDailyMovementResponseDto } from './dto/google-ads-client-daily-movement-response.dto';
+import { GoogleAdsClientSummaryResponseDto } from './dto/google-ads-client-summary-response.dto';
 import { GoogleAdsConsumptionResponseDto } from './dto/google-ads-consumption-response.dto';
 import { GoogleAdsDailyMovementAdminResponseDto } from './dto/google-ads-daily-movement-admin-response.dto';
 import { GoogleAdsDailyMovementClientResponseDto } from './dto/google-ads-daily-movement-client-response.dto';
@@ -170,6 +175,156 @@ export class GoogleAdsService {
         this.toAccountResponse(account, await this.getWalletSummary(account.id)),
       ),
     );
+  }
+
+  async getClientSummary(
+    clientId: string,
+  ): Promise<GoogleAdsClientSummaryResponseDto> {
+    await this.ensureClientExists(clientId);
+    const { periodEnd, periodStart } = this.getCurrentMonthRange();
+
+    const [accounts, periodAggregate] = await Promise.all([
+      this.prisma.googleAdsAccount.findMany({
+        where: {
+          clientId,
+        },
+      }),
+      this.prisma.googleAdsDailyMovement.aggregate({
+        _sum: {
+          clicks: true,
+          consumption: true,
+          conversions: true,
+          topUp: true,
+        },
+        where: {
+          clientId,
+          movementDate: {
+            gte: periodStart,
+            lt: periodEnd,
+          },
+        },
+      }),
+    ]);
+
+    const accountSummaries = await Promise.all(
+      accounts.map((account) => this.getWalletSummary(account.id)),
+    );
+    const balance = accountSummaries.reduce(
+      (total, summary) => total.plus(summary.balance),
+      new Prisma.Decimal(0),
+    );
+
+    return {
+      activeAccounts: accounts.filter(
+        (account) => account.status === GoogleAdsStatus.ACTIVE,
+      ).length,
+      balance: balance.toString(),
+      clientId,
+      currencyCode: accounts[0]?.currencyCode ?? 'COP',
+      monthClicks: periodAggregate._sum.clicks ?? 0,
+      monthConsumption: (
+        periodAggregate._sum.consumption ?? new Prisma.Decimal(0)
+      ).toString(),
+      monthConversions: periodAggregate._sum.conversions ?? 0,
+      monthTopUps: (
+        periodAggregate._sum.topUp ?? new Prisma.Decimal(0)
+      ).toString(),
+      periodEnd,
+      periodStart,
+    };
+  }
+
+  async findClientAccounts(
+    clientId: string,
+  ): Promise<GoogleAdsClientAccountResponseDto[]> {
+    await this.ensureClientExists(clientId);
+
+    const accounts = await this.prisma.googleAdsAccount.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+      where: {
+        clientId,
+      },
+    });
+
+    return Promise.all(
+      accounts.map(async (account) =>
+        this.toClientAccountResponse(
+          account,
+          await this.getWalletSummary(account.id),
+        ),
+      ),
+    );
+  }
+
+  async findClientAccountDetail(
+    clientId: string,
+    accountId: string,
+  ): Promise<GoogleAdsClientAccountDetailResponseDto> {
+    await this.ensureClientExists(clientId);
+    const { periodEnd, periodStart } = this.getCurrentMonthRange();
+    const account = await this.prisma.googleAdsAccount.findFirst({
+      where: {
+        clientId,
+        id: accountId,
+      },
+    });
+
+    if (!account) {
+      throw new NotFoundException('Google Ads account was not found.');
+    }
+
+    const [summary, periodAggregate, movements] = await Promise.all([
+      this.getWalletSummary(account.id),
+      this.prisma.googleAdsDailyMovement.aggregate({
+        _sum: {
+          clicks: true,
+          consumption: true,
+          conversions: true,
+          topUp: true,
+        },
+        where: {
+          googleAdsAccountId: account.id,
+          movementDate: {
+            gte: periodStart,
+            lt: periodEnd,
+          },
+        },
+      }),
+      this.prisma.googleAdsDailyMovement.findMany({
+        orderBy: {
+          movementDate: 'desc',
+        },
+        where: {
+          googleAdsAccountId: account.id,
+          movementDate: {
+            gte: periodStart,
+            lt: periodEnd,
+          },
+        },
+      }),
+    ]);
+
+    return {
+      accountName: account.accountName,
+      balance: summary.balance.toString(),
+      clicks: periodAggregate._sum.clicks ?? 0,
+      consumption: (
+        periodAggregate._sum.consumption ?? new Prisma.Decimal(0)
+      ).toString(),
+      conversions: periodAggregate._sum.conversions ?? 0,
+      currencyCode: account.currencyCode,
+      customerId: account.externalCustomerId,
+      id: account.id,
+      movements: movements.map((movement) =>
+        this.toClientVisibleDailyMovementResponse(movement),
+      ),
+      periodEnd,
+      periodStart,
+      status: account.status,
+      topUp: (periodAggregate._sum.topUp ?? new Prisma.Decimal(0)).toString(),
+    };
   }
 
   async findAccount(id: string): Promise<GoogleAdsAccountResponseDto> {
@@ -771,6 +926,21 @@ export class GoogleAdsService {
     );
   }
 
+  private getCurrentMonthRange(): { periodEnd: Date; periodStart: Date } {
+    const now = new Date();
+    const periodStart = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+    );
+    const periodEnd = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1),
+    );
+
+    return {
+      periodEnd,
+      periodStart,
+    };
+  }
+
   private toAccountResponse(
     account: AccountRecord,
     summary: Awaited<ReturnType<GoogleAdsService['getWalletSummary']>>,
@@ -804,6 +974,23 @@ export class GoogleAdsService {
     };
   }
 
+  private toClientAccountResponse(
+    account: GoogleAdsAccount,
+    summary: Awaited<ReturnType<GoogleAdsService['getWalletSummary']>>,
+  ): GoogleAdsClientAccountResponseDto {
+    return {
+      accountName: account.accountName,
+      balance: summary.balance.toString(),
+      clicks: summary.clicks,
+      conversions: summary.conversions,
+      currencyCode: account.currencyCode,
+      customerId: account.externalCustomerId,
+      id: account.id,
+      latestMovementDate: summary.latestMovement?.movementDate ?? null,
+      status: account.status,
+    };
+  }
+
   private toAdminDailyMovementResponse(
     movement: DailyMovementRecord,
   ): GoogleAdsDailyMovementAdminResponseDto {
@@ -826,6 +1013,20 @@ export class GoogleAdsService {
       notes: movement.notes,
       topUp: movement.topUp.toString(),
       updatedAt: movement.updatedAt,
+    };
+  }
+
+  private toClientVisibleDailyMovementResponse(
+    movement: GoogleAdsDailyMovement,
+  ): GoogleAdsClientDailyMovementResponseDto {
+    return {
+      balance: movement.balance.toString(),
+      clicks: movement.clicks,
+      consumption: movement.consumption.toString(),
+      conversions: movement.conversions,
+      cpc: movement.cpcSale.toString(),
+      movementDate: movement.movementDate,
+      topUp: movement.topUp.toString(),
     };
   }
 

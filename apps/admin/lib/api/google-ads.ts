@@ -49,6 +49,57 @@ export type GoogleAdsDailyMovement = {
   updatedAt: string;
 };
 
+export type ClientGoogleAdsSummary = {
+  clientId: string;
+  currencyCode: string;
+  balance: string;
+  monthConversions: number;
+  monthClicks: number;
+  monthConsumption: string;
+  monthTopUps: string;
+  activeAccounts: number;
+  periodStart: string;
+  periodEnd: string;
+};
+
+export type ClientGoogleAdsAccount = {
+  id: string;
+  accountName: string;
+  customerId: string | null;
+  status: GoogleAdsStatus;
+  currencyCode: string;
+  balance: string;
+  conversions: number;
+  clicks: number;
+  latestMovementDate: string | null;
+};
+
+export type ClientGoogleAdsMovement = {
+  movementDate: string;
+  conversions: number;
+  clicks: number;
+  cpc: string;
+  consumption: string;
+  topUp: string;
+  balance: string;
+};
+
+export type ClientGoogleAdsAccountDetail = {
+  id: string;
+  accountName: string;
+  customerId: string | null;
+  status: GoogleAdsStatus;
+  currencyCode: string;
+  balance: string;
+  conversions: number;
+  clicks: number;
+  consumption: string;
+  topUp: string;
+  periodStart: string;
+  periodEnd: string;
+  movements: ClientGoogleAdsMovement[];
+};
+
 export type CreateGoogleAdsAccountPayload = {
   accountName: string;
   clientId: string;
@@ -111,6 +162,27 @@ export const googleAdsStatusOptions = [
 
 export function getGoogleAdsAccounts() {
   return goowinApiFetch<GoogleAdsAccount[]>('/google-ads/accounts');
+}
+
+export function getClientGoogleAdsSummary(clientId: string) {
+  return goowinApiFetch<ClientGoogleAdsSummary>(
+    `/clients/${clientId}/google-ads/client/summary`,
+  );
+}
+
+export function getClientGoogleAdsAccounts(clientId: string) {
+  return goowinApiFetch<ClientGoogleAdsAccount[]>(
+    `/clients/${clientId}/google-ads/client/accounts`,
+  );
+}
+
+export function getClientGoogleAdsAccountDetail(
+  clientId: string,
+  accountId: string,
+) {
+  return goowinApiFetch<ClientGoogleAdsAccountDetail>(
+    `/clients/${clientId}/google-ads/client/accounts/${accountId}`,
+  );
 }
 
 export function createGoogleAdsAccount(

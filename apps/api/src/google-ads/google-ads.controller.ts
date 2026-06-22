@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Param,
   ParseUUIDPipe,
@@ -25,6 +26,9 @@ import { CreateGoogleAdsConsumptionDto } from './dto/create-google-ads-consumpti
 import { CreateGoogleAdsDailyMovementDto } from './dto/create-google-ads-daily-movement.dto';
 import { CreateGoogleAdsTopUpDto } from './dto/create-google-ads-top-up.dto';
 import { GoogleAdsAccountResponseDto } from './dto/google-ads-account-response.dto';
+import { GoogleAdsClientAccountDetailResponseDto } from './dto/google-ads-client-account-detail-response.dto';
+import { GoogleAdsClientAccountResponseDto } from './dto/google-ads-client-account-response.dto';
+import { GoogleAdsClientSummaryResponseDto } from './dto/google-ads-client-summary-response.dto';
 import { GoogleAdsConsumptionResponseDto } from './dto/google-ads-consumption-response.dto';
 import { GoogleAdsDailyMovementAdminResponseDto } from './dto/google-ads-daily-movement-admin-response.dto';
 import { GoogleAdsTopUpResponseDto } from './dto/google-ads-top-up-response.dto';
@@ -101,6 +105,67 @@ export class GoogleAdsController {
     @Param('clientId', new ParseUUIDPipe({ version: '4' })) clientId: string,
   ): Promise<GoogleAdsAccountResponseDto[]> {
     return this.googleAdsService.findAccountsByClient(clientId);
+  }
+
+  @Get('clients/:clientId/google-ads/client/summary')
+  @Roles(
+    UserRole.GOOWIN_ADMIN,
+    UserRole.GOOWIN_EDITOR,
+    UserRole.CLIENT,
+    UserRole.AGENCY,
+  )
+  @ApiOperation({ summary: 'Get client-visible Google Ads summary.' })
+  @ApiParam({ name: 'clientId', format: 'uuid' })
+  @ApiResponse({ status: 200, type: GoogleAdsClientSummaryResponseDto })
+  getClientSummary(
+    @Param('clientId', new ParseUUIDPipe({ version: '4' })) clientId: string,
+    @CurrentUser() currentUser: JwtPayload,
+  ): Promise<GoogleAdsClientSummaryResponseDto> {
+    this.assertCanReadClient(clientId, currentUser);
+    return this.googleAdsService.getClientSummary(clientId);
+  }
+
+  @Get('clients/:clientId/google-ads/client/accounts')
+  @Roles(
+    UserRole.GOOWIN_ADMIN,
+    UserRole.GOOWIN_EDITOR,
+    UserRole.CLIENT,
+    UserRole.AGENCY,
+  )
+  @ApiOperation({ summary: 'List client-visible Google Ads accounts.' })
+  @ApiParam({ name: 'clientId', format: 'uuid' })
+  @ApiResponse({
+    status: 200,
+    type: GoogleAdsClientAccountResponseDto,
+    isArray: true,
+  })
+  findClientAccounts(
+    @Param('clientId', new ParseUUIDPipe({ version: '4' })) clientId: string,
+    @CurrentUser() currentUser: JwtPayload,
+  ): Promise<GoogleAdsClientAccountResponseDto[]> {
+    this.assertCanReadClient(clientId, currentUser);
+    return this.googleAdsService.findClientAccounts(clientId);
+  }
+
+  @Get('clients/:clientId/google-ads/client/accounts/:accountId')
+  @Roles(
+    UserRole.GOOWIN_ADMIN,
+    UserRole.GOOWIN_EDITOR,
+    UserRole.CLIENT,
+    UserRole.AGENCY,
+  )
+  @ApiOperation({ summary: 'Get client-visible Google Ads account detail.' })
+  @ApiParam({ name: 'clientId', format: 'uuid' })
+  @ApiParam({ name: 'accountId', format: 'uuid' })
+  @ApiResponse({ status: 200, type: GoogleAdsClientAccountDetailResponseDto })
+  findClientAccountDetail(
+    @Param('clientId', new ParseUUIDPipe({ version: '4' })) clientId: string,
+    @Param('accountId', new ParseUUIDPipe({ version: '4' }))
+    accountId: string,
+    @CurrentUser() currentUser: JwtPayload,
+  ): Promise<GoogleAdsClientAccountDetailResponseDto> {
+    this.assertCanReadClient(clientId, currentUser);
+    return this.googleAdsService.findClientAccountDetail(clientId, accountId);
   }
 
   @Post('google-ads/accounts/:accountId/top-ups')
@@ -189,5 +254,17 @@ export class GoogleAdsController {
     @Param('accountId', new ParseUUIDPipe({ version: '4' })) accountId: string,
   ): Promise<GoogleAdsDailyMovementAdminResponseDto[]> {
     return this.googleAdsService.findDailyMovements(accountId);
+  }
+
+  private assertCanReadClient(clientId: string, currentUser: JwtPayload): void {
+    if (
+      (currentUser.role === UserRole.CLIENT ||
+        currentUser.role === UserRole.AGENCY) &&
+      currentUser.clientId !== clientId
+    ) {
+      throw new ForbiddenException(
+        'The authenticated user does not have access to this client.',
+      );
+    }
   }
 }

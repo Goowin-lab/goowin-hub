@@ -1,5 +1,3 @@
-import { getClients } from '@/lib/api/clients';
-import type { Client } from '@/lib/api/clients';
 import type { GoogleAdsStatus } from '@/lib/api/google-ads';
 
 export const currencyFormatter = new Intl.NumberFormat('es-CO', {
@@ -43,9 +41,7 @@ export function formatDate(value: string | null) {
   return dateFormatter.format(date);
 }
 
-export async function getTemporaryClientForGoogleAds(): Promise<Client | null> {
-  const clients = await getClients();
-
-  // TODO(client-auth): replace this temporary/dev fallback with the authenticated clientId.
-  return clients[0] ?? null;
+export function getConfiguredDevelopmentClientId() {
+  // TODO(client-auth): replace this temporary/dev value with the authenticated clientId.
+  return process.env.NEXT_PUBLIC_DEV_CLIENT_ID ?? null;
 }

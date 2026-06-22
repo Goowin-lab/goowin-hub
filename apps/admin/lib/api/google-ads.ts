@@ -1,4 +1,4 @@
-import { goowinApiFetch } from './goowin-api';
+import { goowinApiFetch, goowinPublicApiFetch } from './goowin-api';
 
 export type GoogleAdsStatus = 'ACTIVE' | 'LOW_BALANCE' | 'NO_BALANCE' | 'PAUSED';
 
@@ -100,6 +100,22 @@ export type ClientGoogleAdsAccountDetail = {
   movements: ClientGoogleAdsMovement[];
 };
 
+export type DevelopmentClientReference = {
+  id: string;
+  name: string;
+};
+
+export type DevelopmentClientGoogleAdsPayload = {
+  accounts: ClientGoogleAdsAccount[];
+  client: DevelopmentClientReference | null;
+  summary: ClientGoogleAdsSummary | null;
+};
+
+export type DevelopmentClientGoogleAdsDetailPayload = {
+  client: DevelopmentClientReference | null;
+  detail: ClientGoogleAdsAccountDetail | null;
+};
+
 export type CreateGoogleAdsAccountPayload = {
   accountName: string;
   clientId: string;
@@ -185,6 +201,23 @@ export function getClientGoogleAdsAccountDetail(
   );
 }
 
+export function getDevelopmentClientGoogleAds(clientId?: string | null) {
+  return goowinPublicApiFetch<DevelopmentClientGoogleAdsPayload>(
+    `/dev/google-ads/client${buildClientIdQuery(clientId)}`,
+  );
+}
+
+export function getDevelopmentClientGoogleAdsAccountDetail(
+  accountId: string,
+  clientId?: string | null,
+) {
+  return goowinPublicApiFetch<DevelopmentClientGoogleAdsDetailPayload>(
+    `/dev/google-ads/client/accounts/${accountId}${buildClientIdQuery(
+      clientId,
+    )}`,
+  );
+}
+
 export function createGoogleAdsAccount(
   payload: CreateGoogleAdsAccountPayload,
 ) {
@@ -258,4 +291,12 @@ export function parseGoogleAdsStatus(
   }
 
   return 'ACTIVE';
+}
+
+function buildClientIdQuery(clientId?: string | null) {
+  if (!clientId) {
+    return '';
+  }
+
+  return `?clientId=${encodeURIComponent(clientId)}`;
 }

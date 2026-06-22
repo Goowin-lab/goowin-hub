@@ -29,20 +29,19 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  getClientGoogleAdsAccounts,
-  getClientGoogleAdsSummary,
+  getDevelopmentClientGoogleAds,
   googleAdsStatusLabels,
 } from '@/lib/api/google-ads';
 import type {
   ClientGoogleAdsAccount,
   ClientGoogleAdsSummary,
+  DevelopmentClientReference,
 } from '@/lib/api/google-ads';
 import { getApiErrorType } from '@/lib/api/goowin-api';
-import type { Client } from '@/lib/api/clients';
 import {
   formatCurrency,
   formatDate,
-  getTemporaryClientForGoogleAds,
+  getConfiguredDevelopmentClientId,
   statusVariant,
 } from './view-utils';
 
@@ -148,25 +147,14 @@ export default async function ClientGoogleAdsPage() {
 
 async function loadClientGoogleAdsData(): Promise<{
   accounts: ClientGoogleAdsAccount[];
-  client: Client | null;
+  client: DevelopmentClientReference | null;
   error?: 'api' | 'connection';
   summary: ClientGoogleAdsSummary | null;
 }> {
   try {
-    const client = await getTemporaryClientForGoogleAds();
-
-    if (!client) {
-      return {
-        accounts: [],
-        client: null,
-        summary: null,
-      };
-    }
-
-    const [summary, accounts] = await Promise.all([
-      getClientGoogleAdsSummary(client.id),
-      getClientGoogleAdsAccounts(client.id),
-    ]);
+    const { accounts, client, summary } = await getDevelopmentClientGoogleAds(
+      getConfiguredDevelopmentClientId(),
+    );
 
     return {
       accounts,

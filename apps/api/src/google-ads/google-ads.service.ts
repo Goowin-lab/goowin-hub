@@ -17,6 +17,7 @@ import {
   ServiceTechnicalStatus,
   ServiceType,
 } from '@prisma/client';
+import type { Client } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateGoogleAdsAccountDto } from './dto/create-google-ads-account.dto';
@@ -325,6 +326,46 @@ export class GoogleAdsService {
       status: account.status,
       topUp: (periodAggregate._sum.topUp ?? new Prisma.Decimal(0)).toString(),
     };
+  }
+
+  async findDevelopmentClient(clientId?: string): Promise<Client | null> {
+    if (clientId) {
+      if (!this.isUuid(clientId)) {
+        throw new BadRequestException('DEV client ID must be a valid UUID.');
+      }
+
+      const client = await this.prisma.client.findUnique({
+        where: {
+          id: clientId,
+        },
+      });
+
+      if (!client) {
+        throw new NotFoundException('Client was not found.');
+      }
+
+      return client;
+    }
+
+    const clientWithGoogleAds = await this.prisma.client.findFirst({
+      orderBy: {
+        createdAt: 'desc',
+      },
+      where: {
+        googleAdsAccounts: {
+          some: {},
+        },
+      },
+    });
+
+    return (
+      clientWithGoogleAds ??
+      this.prisma.client.findFirst({
+        orderBy: {
+          createdAt: 'desc',
+        },
+      })
+    );
   }
 
   async findAccount(id: string): Promise<GoogleAdsAccountResponseDto> {

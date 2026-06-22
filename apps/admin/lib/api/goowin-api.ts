@@ -142,6 +142,68 @@ export async function goowinApiFetch<T>(
   return JSON.parse(responseBody) as T;
 }
 
+export async function goowinPublicApiFetch<T>(
+  path: string,
+  options: ApiFetchOptions = {},
+): Promise<T> {
+  const method = options.method ?? 'GET';
+  const url = buildApiUrl(path);
+  let response: Response;
+
+  logApiDebug('request', {
+    authorizationHeader: null,
+    method,
+    payload: options.body,
+    url,
+  });
+
+  try {
+    response = await fetch(url, {
+      body: options.body ? JSON.stringify(options.body) : undefined,
+      cache: 'no-store',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      method,
+    });
+  } catch (error) {
+    logApiDebug('connection-error', {
+      error: getExactErrorMessage(error),
+      method,
+      payload: options.body,
+      url,
+    });
+
+    throw new GoowinApiConnectionError(
+      'Could not connect to the Goowin Hub API.',
+    );
+  }
+
+  const responseBody = await response.text();
+
+  logApiDebug('response', {
+    body: responseBody,
+    method,
+    status: response.status,
+    url,
+  });
+
+  if (!response.ok) {
+    throw new GoowinApiRequestError(
+      getResponseErrorMessage(response, responseBody),
+      response.status,
+      responseBody,
+    );
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  return JSON.parse(responseBody) as T;
+}
+
 function buildApiUrl(path: string) {
   return `${appConfig.apiBaseUrl}${path.startsWith('/') ? path : `/${path}`}`;
 }

@@ -25,7 +25,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  getClientGoogleAdsAccountDetail,
+  getDevelopmentClientGoogleAdsAccountDetail,
   googleAdsStatusLabels,
 } from '@/lib/api/google-ads';
 import type { ClientGoogleAdsAccountDetail } from '@/lib/api/google-ads';
@@ -33,7 +33,7 @@ import { getApiErrorType } from '@/lib/api/goowin-api';
 import {
   formatCurrency,
   formatDate,
-  getTemporaryClientForGoogleAds,
+  getConfiguredDevelopmentClientId,
   statusVariant,
 } from '../view-utils';
 
@@ -165,16 +165,13 @@ async function loadClientGoogleAdsDetail(
   error?: 'api' | 'connection';
 }> {
   try {
-    const client = await getTemporaryClientForGoogleAds();
-
-    if (!client) {
-      return {
-        detail: null,
-      };
-    }
+    const { detail } = await getDevelopmentClientGoogleAdsAccountDetail(
+      accountId,
+      getConfiguredDevelopmentClientId(),
+    );
 
     return {
-      detail: await getClientGoogleAdsAccountDetail(client.id, accountId),
+      detail,
     };
   } catch (error) {
     return {

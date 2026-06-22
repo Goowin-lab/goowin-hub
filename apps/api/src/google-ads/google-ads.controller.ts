@@ -3,10 +3,12 @@ import {
   Controller,
   ForbiddenException,
   Get,
+  NotFoundException,
   Param,
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -17,6 +19,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
+import type { Client } from '@prisma/client';
 
 import { CurrentUser, Roles } from '../common/decorators';
 import { JwtAuthGuard, RolesGuard } from '../common/guards';
@@ -34,6 +37,19 @@ import { GoogleAdsDailyMovementAdminResponseDto } from './dto/google-ads-daily-m
 import { GoogleAdsTopUpResponseDto } from './dto/google-ads-top-up-response.dto';
 import { GoogleAdsService } from './google-ads.service';
 import { UpdateGoogleAdsAccountDto } from './dto/update-google-ads-account.dto';
+
+type DevelopmentClientGoogleAdsResponse = {
+  accounts: GoogleAdsClientAccountResponseDto[];
+  client: DevelopmentClientReference | null;
+  summary: GoogleAdsClientSummaryResponseDto | null;
+};
+
+type DevelopmentClientGoogleAdsDetailResponse = {
+  client: DevelopmentClientReference | null;
+  detail: GoogleAdsClientAccountDetailResponseDto | null;
+};
+
+type DevelopmentClientReference = Pick<Client, 'id' | 'name'>;
 
 @ApiTags('Google Ads Wallet')
 @ApiBearerAuth()
@@ -267,4 +283,89 @@ export class GoogleAdsController {
       );
     }
   }
+}
+
+@ApiTags('Google Ads Client Dev')
+@Controller('dev/google-ads/client')
+export class GoogleAdsClientDevelopmentController {
+  constructor(private readonly googleAdsService: GoogleAdsService) {}
+
+  @Get()
+  @ApiOperation({
+    summary:
+      'DEV only: load the temporary client-visible Google Ads dashboard.',
+  })
+  async getDevelopmentClientGoogleAds(
+    @Query('clientId') clientId?: string,
+  ): Promise<DevelopmentClientGoogleAdsResponse> {
+    this.assertDevelopmentMode();
+
+    // TODO(client-auth): remove this temporary/dev fallback when real client login provides clientId.
+    const client = await this.googleAdsService.findDevelopmentClient(clientId);
+
+    if (!client) {
+      return {
+        accounts: [],
+        client: null,
+        summary: null,
+      };
+    }
+
+    const [summary, accounts] = await Promise.all([
+      this.googleAdsService.getClientSummary(client.id),
+      this.googleAdsService.findClientAccounts(client.id),
+    ]);
+
+    return {
+      accounts,
+      client: toDevelopmentClientReference(client),
+      summary,
+    };
+  }
+
+  @Get('accounts/:accountId')
+  @ApiOperation({
+    summary:
+      'DEV only: load temporary client-visible Google Ads account detail.',
+  })
+  async getDevelopmentClientGoogleAdsDetail(
+    @Param('accountId', new ParseUUIDPipe({ version: '4' }))
+    accountId: string,
+    @Query('clientId') clientId?: string,
+  ): Promise<DevelopmentClientGoogleAdsDetailResponse> {
+    this.assertDevelopmentMode();
+
+    // TODO(client-auth): remove this temporary/dev fallback when real client login provides clientId.
+    const client = await this.googleAdsService.findDevelopmentClient(clientId);
+
+    if (!client) {
+      return {
+        client: null,
+        detail: null,
+      };
+    }
+
+    return {
+      client: toDevelopmentClientReference(client),
+      detail: await this.googleAdsService.findClientAccountDetail(
+        client.id,
+        accountId,
+      ),
+    };
+  }
+
+  private assertDevelopmentMode(): void {
+    if (process.env.NODE_ENV === 'production') {
+      throw new NotFoundException('Development endpoint was not found.');
+    }
+  }
+}
+
+function toDevelopmentClientReference(
+  client: Client,
+): DevelopmentClientReference {
+  return {
+    id: client.id,
+    name: client.name,
+  };
 }

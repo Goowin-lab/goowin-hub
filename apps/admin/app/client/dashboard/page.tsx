@@ -35,21 +35,13 @@ import {
   getDevelopmentClientDashboard,
 } from '@/lib/api/client-dashboard';
 import { getApiErrorType } from '@/lib/api/goowin-api';
+import {
+  formatCurrency,
+  formatDate,
+  getConfiguredDevelopmentClientId,
+} from '../google-ads/view-utils';
 
 export const dynamic = 'force-dynamic';
-
-const currencyFormatter = new Intl.NumberFormat('es-CO', {
-  currency: 'COP',
-  maximumFractionDigits: 0,
-  style: 'currency',
-});
-
-const dateFormatter = new Intl.DateTimeFormat('es-CO', {
-  day: '2-digit',
-  month: '2-digit',
-  timeZone: 'UTC',
-  year: 'numeric',
-});
 
 type ClientDashboardData = {
   recentActivity: ClientDashboardActivity[];
@@ -410,25 +402,10 @@ function EmptyState({ message }: { message: string }) {
   );
 }
 
-function formatCurrency(value: string | number | null) {
-  return currencyFormatter.format(Number(value ?? 0));
-}
-
 function formatActivityDate(value: string | null) {
   if (!value) {
     return 'TEMP';
   }
 
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return dateFormatter.format(date);
-}
-
-function getConfiguredDevelopmentClientId() {
-  // TODO(client-auth): replace this temporary/dev value with the authenticated clientId.
-  return process.env.NEXT_PUBLIC_DEV_CLIENT_ID ?? null;
+  return formatDate(value);
 }

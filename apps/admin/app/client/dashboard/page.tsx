@@ -31,15 +31,11 @@ import {
   ClientDashboardActivity,
   ClientDashboardService,
   ClientDashboardSummary,
-  DevelopmentClientReference,
-  getDevelopmentClientDashboard,
+  getClientDashboard,
 } from '@/lib/api/client-dashboard';
 import { getApiErrorType } from '@/lib/api/goowin-api';
-import {
-  formatCurrency,
-  formatDate,
-  getConfiguredDevelopmentClientId,
-} from '../google-ads/view-utils';
+import { requireClientSession } from '@/lib/auth/server';
+import { formatCurrency, formatDate } from '../google-ads/view-utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -91,7 +87,7 @@ const quickAccessItems: QuickAccessItem[] = [
 ];
 
 export default async function ClientDashboardPage() {
-  const { client, dashboard, error } = await loadClientDashboardData();
+  const { dashboard, error, hasSession } = await loadClientDashboardData();
 
   return (
     <ClientShell
@@ -102,8 +98,10 @@ export default async function ClientDashboardPage() {
         <ClientNotice message="No pudimos cargar tu dashboard en este momento." />
       ) : null}
 
-      {!client || !dashboard ? (
-        <EmptyState message="No hay cliente disponible para este dashboard." />
+      {!hasSession ? (
+        <EmptyState message="No hay sesión de cliente disponible." />
+      ) : !dashboard ? (
+        <EmptyState message="No hay datos disponibles para este dashboard." />
       ) : (
         <>
           <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
@@ -143,7 +141,7 @@ export default async function ClientDashboardPage() {
             <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <CardTitle>Accesos rápidos</CardTitle>
-                <CardDescription>{client.name}</CardDescription>
+                <CardDescription>Módulos disponibles para tu cuenta.</CardDescription>
               </div>
               <Badge variant="secondary">
                 {quickAccessItems.length} módulos
@@ -200,17 +198,23 @@ export default async function ClientDashboardPage() {
 }
 
 async function loadClientDashboardData(): Promise<{
-  client: DevelopmentClientReference | null;
   dashboard: ClientDashboardData | null;
   error?: 'api' | 'connection';
+  hasSession: boolean;
 }> {
+  const session = requireClientSession();
+
+  if (!session) {
+    return {
+      dashboard: null,
+      hasSession: false,
+    };
+  }
+
   try {
-    const payload = await getDevelopmentClientDashboard(
-      getConfiguredDevelopmentClientId(),
-    );
+    const payload = await getClientDashboard();
 
     return {
-      client: payload.client,
       dashboard: payload.summary
         ? {
             recentActivity: payload.recentActivity,
@@ -218,12 +222,13 @@ async function loadClientDashboardData(): Promise<{
             summary: payload.summary,
           }
         : null,
+      hasSession: true,
     };
   } catch (error) {
     return {
-      client: null,
       dashboard: null,
       error: await getApiErrorType(error),
+      hasSession: true,
     };
   }
 }

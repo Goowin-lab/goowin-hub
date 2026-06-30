@@ -29,26 +29,27 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  getDevelopmentClientGoogleAds,
+  getClientGoogleAdsAccounts,
+  getClientGoogleAdsSummary,
   googleAdsStatusLabels,
 } from '@/lib/api/google-ads';
 import type {
   ClientGoogleAdsAccount,
   ClientGoogleAdsSummary,
-  DevelopmentClientReference,
 } from '@/lib/api/google-ads';
 import { getApiErrorType } from '@/lib/api/goowin-api';
+import { requireClientSession } from '@/lib/auth/server';
 import {
   formatCurrency,
   formatDate,
-  getConfiguredDevelopmentClientId,
   statusVariant,
 } from './view-utils';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ClientGoogleAdsPage() {
-  const { accounts, client, error, summary } = await loadClientGoogleAdsData();
+  const { accounts, clientEmail, error, hasSession, summary } =
+    await loadClientGoogleAdsData();
 
   return (
     <ClientShell
@@ -59,8 +60,8 @@ export default async function ClientGoogleAdsPage() {
         <ClientNotice message="No pudimos cargar tus campañas en este momento." />
       ) : null}
 
-      {!client ? (
-        <EmptyState message="No hay cliente disponible para esta vista." />
+      {!hasSession ? (
+        <EmptyState message="No hay sesión de cliente disponible." />
       ) : (
         <>
           <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
@@ -100,7 +101,7 @@ export default async function ClientGoogleAdsPage() {
             <CardHeader className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <CardTitle>Campañas</CardTitle>
-                <CardDescription>{client.name}</CardDescription>
+                <CardDescription>{clientEmail}</CardDescription>
               </div>
               <Badge variant="secondary">
                 {accounts.length} {accounts.length === 1 ? 'cuenta' : 'cuentas'}
@@ -147,25 +148,40 @@ export default async function ClientGoogleAdsPage() {
 
 async function loadClientGoogleAdsData(): Promise<{
   accounts: ClientGoogleAdsAccount[];
-  client: DevelopmentClientReference | null;
+  clientEmail: string;
   error?: 'api' | 'connection';
+  hasSession: boolean;
   summary: ClientGoogleAdsSummary | null;
 }> {
+  const session = requireClientSession();
+
+  if (!session) {
+    return {
+      accounts: [],
+      clientEmail: '',
+      hasSession: false,
+      summary: null,
+    };
+  }
+
   try {
-    const { accounts, client, summary } = await getDevelopmentClientGoogleAds(
-      getConfiguredDevelopmentClientId(),
-    );
+    const [summary, accounts] = await Promise.all([
+      getClientGoogleAdsSummary(session.clientId),
+      getClientGoogleAdsAccounts(session.clientId),
+    ]);
 
     return {
       accounts,
-      client,
+      clientEmail: session.email,
+      hasSession: true,
       summary,
     };
   } catch (error) {
     return {
       accounts: [],
-      client: null,
+      clientEmail: session.email,
       error: await getApiErrorType(error),
+      hasSession: true,
       summary: null,
     };
   }

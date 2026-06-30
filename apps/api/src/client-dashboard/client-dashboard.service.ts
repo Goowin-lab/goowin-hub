@@ -28,7 +28,6 @@ import {
 const UPCOMING_RENEWAL_DAYS = 45;
 
 type DashboardClient = Pick<Client, 'commercialStatus' | 'id' | 'name'>;
-type DevelopmentClientReference = Pick<Client, 'id' | 'name'>;
 
 type GoogleAdsDashboardData = {
   balance: Prisma.Decimal;
@@ -76,58 +75,6 @@ export class ClientDashboardService {
         upcomingRenewals,
       },
     };
-  }
-
-  async findDevelopmentClient(
-    clientId?: string,
-  ): Promise<DevelopmentClientReference | null> {
-    if (clientId) {
-      this.assertUuid(clientId, 'DEV client ID');
-
-      const client = await this.prisma.client.findUnique({
-        select: {
-          id: true,
-          name: true,
-        },
-        where: {
-          id: clientId,
-        },
-      });
-
-      if (!client) {
-        throw new NotFoundException('Client was not found.');
-      }
-
-      return client;
-    }
-
-    const clientWithGoogleAds = await this.prisma.client.findFirst({
-      orderBy: {
-        createdAt: 'desc',
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-      where: {
-        googleAdsAccounts: {
-          some: {},
-        },
-      },
-    });
-
-    return (
-      clientWithGoogleAds ??
-      this.prisma.client.findFirst({
-        orderBy: {
-          createdAt: 'desc',
-        },
-        select: {
-          id: true,
-          name: true,
-        },
-      })
-    );
   }
 
   private async findClientOrThrow(clientId: string): Promise<DashboardClient> {

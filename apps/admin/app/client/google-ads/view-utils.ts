@@ -40,8 +40,3 @@ export function formatDate(value: string | null) {
 
   return dateFormatter.format(date);
 }
-
-export function getConfiguredDevelopmentClientId() {
-  // TODO(client-auth): replace this temporary/dev value with the authenticated clientId.
-  return process.env.NEXT_PUBLIC_DEV_CLIENT_ID ?? null;
-}

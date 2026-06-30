@@ -24,7 +24,11 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     try {
-      request.user = await this.jwtService.verifyAsync<JwtPayload>(token);
+      const payload = await this.jwtService.verifyAsync<JwtPayload>(token);
+      request.user = {
+        ...payload,
+        id: payload.id ?? payload.sub,
+      };
       return true;
     } catch {
       throw new UnauthorizedException('Invalid or expired bearer token.');

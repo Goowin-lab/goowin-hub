@@ -1,3 +1,4 @@
+import { getSessionToken } from '@/lib/auth/server';
 import { appConfig } from '@/lib/config';
 
 type ApiFetchOptions = {
@@ -68,20 +69,20 @@ export async function goowinApiFetch<T>(
   path: string,
   options: ApiFetchOptions = {},
 ): Promise<T> {
-  const apiToken = appConfig.apiToken;
+  const apiToken = getSessionToken();
   const method = options.method ?? 'GET';
   const url = buildApiUrl(path);
 
   if (!apiToken) {
     logApiDebug('configuration-error', {
-      error: 'GOOWIN_API_TOKEN is required to call the Goowin Hub API.',
+      error: 'An authenticated Goowin Hub session is required.',
       method,
       payload: options.body,
       url,
     });
 
     throw new GoowinApiConfigurationError(
-      'GOOWIN_API_TOKEN is required to call the Goowin Hub API.',
+      'An authenticated Goowin Hub session is required.',
     );
   }
 
